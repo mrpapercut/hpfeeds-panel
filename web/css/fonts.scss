@@ -3,5 +3,13 @@
   font-style: normal;
   font-weight: 400;
   src: local('Raleway'), local('Raleway-Regular'), url(../fonts/Raleway.woff2) format('woff2');  
-  //src: local('Raleway'), local('Raleway-Regular'), url(../fonts/Raleway.ttf) format('truetype');
+  // src: local('Raleway'), local('Raleway-Regular'), url(../fonts/Raleway.ttf) format('truetype');
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Inconsolata Regular'), local('Inconsolata-Regular'), url(../fonts/Inconsolata.woff2) format('woff2');
+  // src: local('Inconsolata Regular'), local('Inconsolata-Regular'), url(../fonts/Inconsolata.ttf) format('truetype');
 }

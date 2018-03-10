@@ -1,9 +1,37 @@
 @import 'fonts.scss';
 
 body {
-    font-family: Raleway;
+    background: #0f0f0f;
 
-    div {
-        border: 1px solid #f00;
+    .wrapper {
+        margin: 5% 10% 0;
+        display: grid;
+        grid-template-columns: 60% 40%;
+        grid-gap: 10px;
+    }
+
+    .container {
+        color: #fff;
+        background: rgba(0, 255, 78, 0.3);
+        border: 1px solid rgba(0, 255, 78, 1);
+        border-radius: 2px;
+        padding: 1em;
+        position: relative;
+    }
+
+    h2 {
+        font-family: Raleway;
+        margin: 0;
+    }
+
+    .feeds {
+
+    }
+
+    .feed {
+        display: grid;
+        grid-template-columns: 30% 20% 45%;
+        grid-gap: 5px;
+        font-family: Inconsolata;
     }
 }

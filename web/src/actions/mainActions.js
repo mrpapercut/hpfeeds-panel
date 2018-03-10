@@ -1,7 +1,7 @@
 export const GET_FEEDS = 'GET_FEEDS';
 export const getFeeds = () => {
     return function (dispatch) {
-        return fetch('http://localhost:3000/search/')
+        return fetch('http://192.168.1.34:3000/search/')
         .then(
             response => response.json(),
             error => console.log(error)
