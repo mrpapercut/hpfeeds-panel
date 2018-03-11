@@ -11,7 +11,7 @@ const getGeodata = (ipaddr, callback) => {
 		callback({
 			'latitude': parseFloat(geodata.geobyteslatitude),
 			'longitude': parseFloat(geodata.geobyteslongitude),
-            'fqcn': geodata.geobytesfqcn
+            'fqcn': `${geodata.geobytescity}, ${geodata.geobytescountry}`
 		});
     });
 }

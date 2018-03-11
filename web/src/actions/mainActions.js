@@ -16,6 +16,28 @@ export const receiveFeeds = feeds => {
     return {
         type: RECEIVE_FEEDS,
         feeds: feeds.hits.hits,
-        total: feeds.hits.total
+        totalFeeds: feeds.hits.total
+    };
+}
+
+export const GET_CAPTURES = 'GET_CAPTURES';
+export const getCaptures = () => {
+    return function (dispatch) {
+        return fetch('http://192.168.1.34:3000/captures/')
+        .then(
+            response => response.json(),
+            error => console.log(error)
+        ).then(json => {
+            return dispatch(receiveCaptures(json))
+        });
+    };
+}
+
+export const RECEIVE_CAPTURES = 'RECEIVE_CAPTURES';
+export const receiveCaptures = captures => {
+    return {
+        type: RECEIVE_CAPTURES,
+        captures: captures.hits.hits,
+        totalCaptures: captures.hits.total
     };
 }

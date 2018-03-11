@@ -1,0 +1,24 @@
+body {
+    background: #000;
+
+    .wrapper {
+        margin: 5% 10% 0;
+        display: grid;
+        grid-template-columns: 60% 40%;
+        grid-gap: 10px;
+    }
+
+    .container {
+        color: #fff;
+        background: #000;
+        border: 1px solid $blue;
+        border-radius: 2px;
+        padding: 1em;
+        position: relative;
+    }
+
+    h2 {
+        font-family: Raleway;
+        margin: 0;
+    }
+}

@@ -1,7 +1,7 @@
 import React, {Component, createElement as E} from 'react';
 import DOM from 'react-dom';
 
-class Attacks extends Component {
+class Captures extends Component {
     constructor(props) {
         super(props);
     }
@@ -11,16 +11,16 @@ class Attacks extends Component {
 
         let d = new Date(ts);
 
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${('00' + d.getMilliseconds()).substr(-3)}`;
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${('00' + d.getMilliseconds()).substr(-3)}`;
     }
 
     render() {
-        const {feeds} = this.props;
+        const {captures} = this.props;
 
         const headers = [E('div', {
             key: 0,
             className: 'feed'
-        }, ['Time', 'IP', 'Port', 'Protocol', 'Origin'].map((h, i) =>
+        }, ['Time', 'IP', 'Port', 'Origin', 'Url'].map((h, i) =>
             E('span', {
                 key: i,
                 className: 'feedHeader'
@@ -31,12 +31,12 @@ class Attacks extends Component {
             className: 'container'
         },
             E('h2', {
-                className: 'feedsHeader'
-            }, 'Latest connections'),
+                className: 'capturesHeader'
+            }, 'Latest captures'),
             E('div', {
-                className: 'feeds'
+                className: 'captures'
             },
-                feeds.length > 0 ? headers.concat(feeds.map(feed => E('div', {
+                captures.length > 0 ? headers.concat(captures.map(feed => E('div', {
                     key: feed._id,
                     className: 'feed'
                 },
@@ -51,16 +51,16 @@ class Attacks extends Component {
                         className: 'feedLocalPort'
                     }, feed._source.local_port),
                     E('span', {
-                        className: 'feedConnectionProtocol'
-                    }, feed._source.connection_protocol || ''),
-                    E('span', {
                         className: 'feedLocalLocation',
                         title: feed._source.city
-                    }, feed._source.city)
+                    }, feed._source.city),
+                    E('span', {
+                        className: 'feedUrl'
+                    }, feed._source.url)
                 ))) : null
             )
         )
     }
 }
 
-export default Attacks;
+export default Captures;

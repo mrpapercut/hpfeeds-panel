@@ -34,6 +34,21 @@ class WebServer {
             });
         });
 
+        this.server.get('/captures/', (req, res) => {
+            res.set('Access-Control-Allow-Origin', '*');
+
+            this.searchES({
+                query: {
+                    term: {
+                        connection_channel: 'dionaea.capture'
+                    }                 
+                },
+                size: 200
+            }).then(captures => {
+                res.send(captures);
+            });
+        });
+
         this.server.listen(3000, () => {
             console.log('WebServer started listing on port 3000');
         });

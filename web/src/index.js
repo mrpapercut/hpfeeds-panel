@@ -1,11 +1,17 @@
 import React, {Component, createElement as E} from 'react';
-import DOM from 'react-dom';
-import {Provider} from 'react-redux';
+import DOM          from 'react-dom';
+import {Provider}   from 'react-redux';
 
-import createStore from './createStore';
-import {getFeeds} from './actions/mainActions';
+import createStore  from './createStore';
+import {
+    getFeeds,
+    getCaptures
+} from './actions/mainActions';
 
-import Attacks from './components/Attacks';
+import Attacks      from './components/Attacks';
+import WorldMap     from './components/WorldMap';
+import Captures     from './components/Captures';
+import Sensors      from './components/Sensors';
 
 const store = createStore();
 
@@ -17,9 +23,16 @@ class App extends Component {
     }
 
     componentDidMount() {
-        store.dispatch(getFeeds()).then(() =>
-            this.setState(store.getState())
-        );
+        const performGet = () => {
+            store.dispatch(getFeeds()).then(() =>
+                this.setState(store.getState()));
+
+            store.dispatch(getCaptures()).then(() =>
+                this.setState(store.getState()));
+        };
+
+        window.setInterval(performGet, 2000);
+        performGet();
     }
 
     componentDidUpdate() {
@@ -27,22 +40,18 @@ class App extends Component {
     }
 
     render() {
-        const {feeds, total} = this.state;
+        const {
+            feeds, totalFeeds,
+            captures, totalCaptures
+        } = this.state;
 
         return E('div', {
             className: 'wrapper'
         },
-            // E('h2', {}, `Loaded ${feeds.length} out of ${total} feeds`),
+            E(WorldMap, {feeds: feeds}),
             E(Attacks, {feeds: feeds}),
-            E('div', {
-                className: 'container'
-            }, E('h2', {}, 'World map here')),
-            E('div', {
-                className: 'container'
-            }, E('h2', {}, 'Latest captures')),
-            E('div', {
-                className: 'container'
-            }, E('h2', {}, 'List of sensors'))
+            E(Captures, {captures: captures}),
+            E(Sensors, {feeds: feeds})
         );
     }
 }
