@@ -23,9 +23,9 @@ var useews = false;
 var useredis = false;
 
 class HPFeedsServer {
-    constructor(port, verbose) {
-        this.port = port || 10000;
+    constructor(verbose, port) {
         this.verbose = verbose || false;
+        this.port    = port || 10000;
 
         this.createServer();
     }

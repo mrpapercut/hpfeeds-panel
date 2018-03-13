@@ -30,6 +30,7 @@
   },
   "scripts": {
     "server": "babel-node ./start-server.js",
+    "server-log": "babel-node ./start-server.js --verbose >> log.json",
     "web": "webpack"
   }
 }

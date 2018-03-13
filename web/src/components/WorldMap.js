@@ -104,14 +104,14 @@ class WorldMap extends Component {
                                 feed._isNew ? E('circle', {
                                     cx: 0,
                                     cy: 0,
-                                    r: 15,
+                                    r: 10,
                                     fill: 'rgba(0, 255, 78, .5)',
                                     stroke: 'rgba(0, 255, 78, 1)',
                                     strokeWidth: '2'
                                 }) : E('circle', {
                                     cx: 0,
                                     cy: 0,
-                                    r: 10, // cityScale(feed._source.local_port, 11965),
+                                    r: 2, // cityScale(feed._source.local_port, 11965),
                                     fill: 'rgba(255, 78, 0, 0.1)',
                                     stroke: 'rgba(255, 78, 0, 1)',
                                     strokeWidth: '2'
