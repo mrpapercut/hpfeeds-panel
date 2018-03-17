@@ -1,7 +1,29 @@
-@import 'variables.scss';
 @import 'fonts.scss';
-@import 'generic.scss';
-@import 'worldmap.scss';
-@import 'feeds.scss';
-@import 'captures.scss';
-@import 'sensors.scss';
+
+body {
+    font-family: Raleway;
+
+    .wrapper {
+        margin: 5% 10% 0;
+        display: grid;
+        grid-template-columns: 60% 40%;
+        grid-gap: 10px;
+    }
+
+    .container {
+        background: #f5f5f5;
+        border: 1px solid #e0e0e0;
+        border-radius: 2px;
+        padding: 1em;
+        position: relative;
+    }
+
+    .feeds {
+        .feed {
+            display: grid;
+            grid-template-columns: 30% 20% 45%;
+            grid-gap: 5px;
+            font-family: Inconsolata;
+        }
+    }
+}
