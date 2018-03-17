@@ -1,31 +1,31 @@
-var put = require('put');
-var binary = require('binary');
-var S = require('string');
-var net = require('net');
-var hexdump = require('hexdump-nodejs');
-var crypto = require('crypto'), shasum = crypto.createHash('sha1');
-var spawn = require('child_process').spawn;
+import path         from 'path';
+import fs           from 'fs';
+import put          from 'put';
+import binary       from 'binary';
+import S            from 'string';
+import net          from 'net';
+import hexdump      from 'hexdump-nodejs';
+import {spawn}      from 'child_process';
 
-var getGeodata = require('../util/getGeodata');
+import getGeodata   from '../util/getGeodata';
+import md5sum       from '../util/md5sum';
+import {
+    logError,
+    logInfo
+} from '../util/log';
 
-var len, type, lenIdent, lenChannel = 0, serverName, nonce;
+let identifier = 'HPFeedsNodeJSServer';
 
-var identifier = "HPFeedsNodeJSServer"
-var payload, authHash, channel;
-
-var clients = [];
-var img = [];
-var bytes;
-
-var port = 10000;
-var verbose = true;
-var useews = false;
-var useredis = false;
+const clients = [];
+const img = [];
 
 class HPFeedsServer {
     constructor(verbose, port) {
-        this.verbose = verbose || false;
+        this.verbose = verbose || true;
         this.port    = port || 10000;
+
+        // Vars
+        this.lenIdent = null;
 
         this.createServer();
     }
@@ -34,17 +34,17 @@ class HPFeedsServer {
         // Start a TCP Server
         net.createServer(socket => {
             // Identify this client
-            socket.name = socket.remoteAddress + ":" + socket.remotePort
+            socket.name = `${socket.remoteAddress}:${socket.remotePort}`;
 
             // create initial packet from server with none
             var publishLen = 4 + 1 + 1 + S(identifier).length + 4;
 
             var pubBuf = put()
-                .word32be(publishLen)                 //
-                .word8(1)                             // INFO PACKET
-                .word8(S(identifier).length)          // LENGTH IDENTIFIER
-                .put(new Buffer(identifier, 'ascii')) // IDENTIFIER
-                .word32be(0x42424242)                 // NONCE
+                .word32be(publishLen)                   //
+                .word8(1)                               // INFO PACKET
+                .word8(S(identifier).length)            // LENGTH IDENTIFIER
+                .put(Buffer.from(identifier, 'ascii'))  // IDENTIFIER
+                .word32be(0x42424242)                   // NONCE
                 .buffer();
 
             socket.write(pubBuf);
@@ -53,22 +53,19 @@ class HPFeedsServer {
             socket.on('data', data => {
                 img.push(data);
                 this.parseBuf(data);
-
-                if (this.verbose) console.log("Recieved " + data.length + " bytes....")
             });
 
             // Remove the client from the list when it leaves
             socket.on('end', () => {
                 clients.splice(clients.indexOf(socket), 1);
-                bytes = Buffer.concat(img);
+                logInfo('Event `end` received');
 
-                console.log('Event `end` received');
-                this.parseBuf(bytes);
+                this.parseBuf(Buffer.concat(img));
             });
-        }).listen(port);
+        }).listen(this.port);
 
         // Put a friendly message on the terminal of the server.
-        console.log("HPFeedsServer started listening at port " + port);
+        console.log(`HPFeedsServer started listening at port ${this.port}`);
     }
 
     parseBuf(bytes) {
@@ -76,9 +73,9 @@ class HPFeedsServer {
         var byteRunner = 0;
         var self = this;
 
-        binary.parse(bytes).tap(function (vars2) {
+        binary.parse(bytes).tap(function(vars2) {
             while (byteRunner <= lenCompletePacket - 1) {
-                if (self.verbose) console.log("Starting scan loop at offset " + byteRunner + " from total length  " + lenCompletePacket);
+                if (self.verbose) logInfo(`Starting scan loop at offset ${byteRunner} from total length ${lenCompletePacket}`);
 
                 this.word32bu('len');
                 this.word8bu('type');
@@ -87,65 +84,71 @@ class HPFeedsServer {
                 this.tap(function (vars) {
                     this.buffer('identifier', vars.lenIdent);
 
-                    identifier = vars.identifier;
-                    lenIdent = vars.lenIdent;
-                    type = vars.type;
+                    this.lenIdent = vars.lenIdent;
 
-                    // check for AUTH packet
-                    if (vars.type == 2) {
-                        this.buffer('authHash', 20)
-                        authHash = vars.authHash
-                        byteRunner += 6 + 20 + vars.lenIdent
-                        this.flush()
-                    }
-                    // check for PUBLISH packet
-                    else if (vars.type == 3) {
-                        this.word8bu('lenChannel')
+                    /* types:
+                      2 AUTH packet
+                      3 PUBLISH packet
+                    */
+                    if (vars.type === 2) {
+                        this.buffer('authHash', 20);
+                        byteRunner += 6 + 20 + vars.lenIdent;
+                        this.flush();
 
-                        var lenChannelPlain = vars.lenChannel.toString();
-                        var lenChannel = vars.lenChannel.toString().charCodeAt(0);
+                        if (self.verbose) {
+                            logInfo(`Auth packet with identifier: ${vars.identifier.toString()} and hash`, hexdump(vars.authHash));
+                        }
+                    } else if (vars.type === 3) {
+                        this.word8bu('lenChannel');
 
+                        let lenChannel = vars.lenChannel.toString().charCodeAt(0);
                         this.buffer('channel', vars.lenChannel);
 
-                        var lenPayload = vars.len - 4 - 1 - 1 - vars.lenIdent - 1 - vars.lenChannel;
-
+                        let lenPayload = vars.len - 4 - 1 - 1 - vars.lenIdent - 1 - vars.lenChannel;
                         this.buffer('payload', lenPayload);
 
-                        channel = vars.channel;
-                        payload = vars.payload;
-                        len = vars.len;
+                        byteRunner += 6 + vars.lenIdent + 1 + lenChannel + lenPayload;
 
-                        byteRunner += 6 + vars.lenIdent + 1 + lenChannel + lenPayload
+                        const {channel, payload, identifier, len} = vars;
 
-                        if (useews) ewsParser.parseEWS(payload, useredis, self.verbose, true, false)     // for the moment use only xml parser and no json parser
-                    } else {
-                        if (self.verbose) console.log("Error: Unknown packet found: " + bytes)
-                        byteRunner = lenCompletePacket
-                    }
-
-                    if (type == 2) {
-                        if (self.verbose) console.log("Auth packet with identifier: " + identifier.toString() + " and hash")
-                        if (self.verbose) console.log(hexdump(authHash))
-                    }
-
-                    if (type == 3) {
-                        if (self.verbose) console.log("   Publish packet with channel: " + channel.toString() + " and identifier " + identifier.toString() + " and len " + len.toString() + " and payload " + payload.toString())
-                        if (self.verbose) console.log(hexdump(payload));
-                        
-                        if (channel.toString() === 'dionaea.connections') {
-                            self.processPayload(JSON.parse(payload.toString('utf8')), channel.toString(), identifier.toString());
-                        } else if (channel.toString() === 'dionaea.capture') {
-                            self.processPayload(JSON.parse(payload.toString('utf8')), channel.toString(), identifier.toString());
-                        } else if (channel.toString() === 'mwbinary.dionaea.sensorunique') {
-                            if (self.verbose) console.log('caught something, ', payload.toString('utf8').length, 'bytes');
+                        if (self.verbose) {
+                            logInfo(
+                                `Publish packet`,
+                                ` channel: ${channel.toString()}`,
+                                ` identifier: ${identifier.toString()}`,
+                                ` len: ${len.toString()}`,
+                                ` payload: ${hexdump(payload)}`
+                            );
                         }
+
+                        // Process payload
+                        switch (channel.toString()) {
+                        case 'dionaea.connections':
+                        case 'dionaea.capture':
+                            self.processPayload(payload.toString('utf8'), channel.toString(), identifier.toString());
+                            break;
+                        case 'mwbinary.dionaea.sensorunique':
+                            self.savePayloadToFile(payload);
+                            if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, hexdump(payload));
+                            break;
+                        }
+                    } else {
+                        if (self.verbose) logError(`Error: Unknown packet found: \n${hexdump(bytes)}`);
+                        byteRunner = lenCompletePacket;
                     }
-                })
+                });
             }
-        })
+        });
     }
 
     processPayload(payload, channel, identifier) {
+        try {
+            payload = JSON.parse(payload);
+        } catch (e) {
+            logError(`Error trying to process payload:`, hexdump(payload));
+            return;
+        }
+
         if (channel === 'dionaea.capture') payload = this.formatPayload(payload);
 
         payload = Object.assign(payload, {
@@ -167,9 +170,34 @@ class HPFeedsServer {
         };
     }
 
+    savePayloadToFile(payload) {
+        const payloadsDirectory = path.resolve(path.join('.', '/payloads/'));
+        const payloadhash = md5sum(payload);
+
+        fs.lstat(payloadsDirectory, (err, res) => {
+            if (err) {
+                fs.mkdir(payloadsDirectory, (err, res) => {
+                    if (err) {
+                        logError('Error creating directory `payloads`');
+                    } else {
+                        fs.writeFile(path.join(payloadsDirectory, `${payloadhash}.bin`), payload, (err, res) => {
+                            if (err) logError(`Could not write payload ${payloadhash}`);
+                        });
+                    }
+                });
+            } else {
+                fs.writeFile(path.join(payloadsDirectory, `${payloadhash}.bin`), payload, (err, res) => {
+                    if (err) logError(`Could not write payload ${payloadhash}`);
+                });
+            }
+        });
+    }
+
     addGeodata(payload) {
         return new Promise((resolve, reject) => {
-            getGeodata(payload.remote_host, geodata => {
+            getGeodata(payload.remote_host, (err, geodata) => {
+                if (err) logError(err);
+
                 payload = Object.assign(payload, {
                     coordinates: [geodata.latitude, geodata.longitude],
                     longitude: geodata.longitude,
@@ -181,25 +209,25 @@ class HPFeedsServer {
             });
         });
     }
-    
-    curlPayload(payload) {    
+
+    curlPayload(payload) {
         const curlrequest = spawn('curl', [
             '--user', 'elastic:elastic',
             '-X', 'POST', 'http://localhost:9200/hpfeeds/feed',
             '-H', 'Content-Type: application/json',
             '-d', JSON.stringify(payload)
         ]);
-        
+
         curlrequest.stdout.on('data', data => {
             // if (this.verbose) console.log(`stdout: ${data}`);
         });
-        
-        curlrequest.stderr.on('data', err => {
-            // if (this.verbose) console.log(`stderr: ${err}`);
+
+        curlrequest.stderr.on('data', data => {
+            // if (this.verbose) console.log(`stderr: ${data}`);
         });
-        
+
         curlrequest.on('close', exitcode => {
-            if (this.verbose) console.log(`curl closed with exitcode ${exitcode}`);
+            // if (this.verbose) console.log(`curl closed with exitcode ${exitcode}`);
         });
     }
 }

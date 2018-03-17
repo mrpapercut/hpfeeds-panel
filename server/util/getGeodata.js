@@ -1,19 +1,17 @@
-const request = require('request');
+import request from 'request';
 
-const getGeodata = (ipaddr, callback) => {
-	const url = `http://getcitydetails.geobytes.com/GetCityDetails?fqcn=${ipaddr}`;
-    // console.log(url);
+const getGeodata = (ipaddr, cb) => {
+    const url = `http://getcitydetails.geobytes.com/GetCityDetails?fqcn=${ipaddr}`;
 
-	request.get(url, (err, res, body) => {
-		if (err) console.error(err);
-		const geodata = JSON.parse(body);
+    request.get(url, (err, res, body) => {
+        const geodata = JSON.parse(body);
 
-		callback({
-			'latitude': parseFloat(geodata.geobyteslatitude),
-			'longitude': parseFloat(geodata.geobyteslongitude),
+        cb(err, {
+            'latitude': parseFloat(geodata.geobyteslatitude),
+            'longitude': parseFloat(geodata.geobyteslongitude),
             'fqcn': `${geodata.geobytescity}, ${geodata.geobytescountry}`
-		});
+        });
     });
-}
+};
 
-module.exports = getGeodata;
+export default getGeodata;

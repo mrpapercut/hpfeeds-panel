@@ -1,4 +1,4 @@
-import elasticsearch from "elasticsearch";
+import elasticsearch from 'elasticsearch';
 
 const getFeeds = () => {
     const esclient = new elasticsearch.Client({
@@ -9,12 +9,12 @@ const getFeeds = () => {
     esclient.search({
         index: 'hpfeeds',
         body: {
-            "sort": [{"timestamp": "desc"}]
+            'sort': [{'timestamp': 'desc'}]
         }
     }).then(res => {
         console.log(res.hits.hits);
     });
-}
+};
 
 // module.exports = getFeeds;
 getFeeds();
