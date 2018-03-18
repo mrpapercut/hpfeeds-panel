@@ -32,7 +32,8 @@
   "scripts": {
     "server": "babel-node ./start-server.js",
     "server-log": "babel-node ./start-server.js --verbose >> server.log",
-    "web": "webpack"
+    "web": "webpack",
+    "web-watch": "webpack --colors --progress --watch"
   },
   "devDependencies": {
     "eslint-config-standard": "^11.0.0",
