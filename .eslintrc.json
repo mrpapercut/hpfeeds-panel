@@ -6,5 +6,8 @@
         "space-before-function-paren": "off",
         "no-multi-spaces": "off",
         "one-var": "off"
+    },
+    "env": {
+        "browser": true
     }
 }
