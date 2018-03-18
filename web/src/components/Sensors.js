@@ -1,6 +1,9 @@
 import React, {Component, createElement as E} from 'react';
 import DOM from 'react-dom';
 
+const _sensors = {
+}
+
 class Sensors extends Component {
     constructor(props) {
         super(props);
@@ -22,7 +25,7 @@ class Sensors extends Component {
         const headers = [E('div', {
             key: 0,
             className: 'sensor'
-        }, ['Active', 'Sensor', 'Last known activity'].map((h, i) =>
+        }, ['', 'Sensor', 'Last known activity'].map((h, i) =>
             E('span', {
                 key: i,
                 className: 'sensorHeader'
@@ -38,7 +41,7 @@ class Sensors extends Component {
             E('div', {
                 className: 'sensors'
             },
-                this.filterSensors(feeds).map((sensor, i) => {
+                headers.concat(this.filterSensors(feeds).map((sensor, i) => {
                     let diff = parseInt((+new Date - +new Date(sensor._source.timestamp)) / 1000, 10);
 
                     return E('div', {
@@ -46,16 +49,16 @@ class Sensors extends Component {
                         className: 'sensor'
                     },
                         E('span', {
-                            className: diff < 600 ? 'sensorActive' : 'sensorInactive'
+                            className: diff < 1800 ? 'sensorActive' : 'sensorInactive'
                         }),
                         E('span', {
                             className: 'sensorName'
-                        }, sensor._source.sensor),
+                        }, _sensors[sensor._source.sensor] || sensor._source.sensor),
                         E('span', {
                             className: 'sensorLastActivity'
                         }, `${diff} seconds ago`)
                     )
-                })
+                }))
             )
         )
     }
