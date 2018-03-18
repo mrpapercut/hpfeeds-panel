@@ -10,7 +10,7 @@ const initialState = {
     totalFeeds: 0,
     captures: [],
     totalCaptures: 0
-}
+};
 
 const combineNewFeeds = (currentFeeds, newFeeds, i) => {
     currentFeeds = currentFeeds.map(f => {
@@ -20,8 +20,8 @@ const combineNewFeeds = (currentFeeds, newFeeds, i) => {
 
     newFeeds.forEach(f => {
         if (currentFeeds.filter(cf => {
-            return cf._source.timestamp === f._source.timestamp
-                && cf._source.city === f._source.city;
+            return cf._source.timestamp === f._source.timestamp &&
+                cf._source.city === f._source.city;
         }).length === 0) {
             f._isNew = true;
             currentFeeds.push(f);
@@ -33,31 +33,31 @@ const combineNewFeeds = (currentFeeds, newFeeds, i) => {
     });
 
     return currentFeeds;
-}
+};
 
 const mainReducer = (state = initialState, action) => {
     switch (action.type) {
-        case GET_FEEDS:
-            return state;
+    case GET_FEEDS:
+        return state;
 
-        case RECEIVE_FEEDS:
-            return Object.assign({}, state, {
-                feeds: combineNewFeeds(state.feeds, action.feeds),
-                totalFeeds: action.totalFeeds
-            });
+    case RECEIVE_FEEDS:
+        return Object.assign({}, state, {
+            feeds: combineNewFeeds(state.feeds, action.feeds),
+            totalFeeds: action.totalFeeds
+        });
 
-        case GET_CAPTURES:
-            return state;
+    case GET_CAPTURES:
+        return state;
 
-        case RECEIVE_CAPTURES:
-            return Object.assign({}, state, {
-                captures: combineNewFeeds(state.captures, action.captures, !0),
-                totalCaptures: action.totalCaptures
-            });
+    case RECEIVE_CAPTURES:
+        return Object.assign({}, state, {
+            captures: combineNewFeeds(state.captures, action.captures, !0),
+            totalCaptures: action.totalCaptures
+        });
 
-        default:
-            return state;
+    default:
+        return state;
     }
-}
+};
 
 export default mainReducer;

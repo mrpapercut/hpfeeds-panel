@@ -1,4 +1,4 @@
-import React, {Component, createElement as E} from 'react';
+import {Component, createElement as E} from 'react';
 import DOM          from 'react-dom';
 import {Provider}   from 'react-redux';
 
@@ -41,21 +41,25 @@ class App extends Component {
 
     render() {
         const {
-            feeds, totalFeeds,
-            captures, totalCaptures
+            feeds,
+            captures
         } = this.state;
 
         return E('div', {
             className: 'wrapper'
         },
-            E(WorldMap, {feeds: feeds}),
-            E(Attacks, {feeds: feeds}),
-            E(Captures, {captures: captures}),
-            E(Sensors, {feeds: feeds})
+        E(WorldMap, {feeds: feeds}),
+        E(Attacks, {feeds: feeds}),
+        E(Captures, {captures: captures}),
+        E(Sensors, {feeds: feeds})
         );
     }
 }
 
 window.addEventListener('load', e => {
-    ReactDOM.render((<Provider store={store}><App /></Provider>), document.body);
+    DOM.render(E(Provider, {
+        store: store
+    },
+    E(App, {})
+    ), document.body);
 });

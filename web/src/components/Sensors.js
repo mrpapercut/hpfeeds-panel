@@ -1,8 +1,7 @@
-import React, {Component, createElement as E} from 'react';
-import DOM from 'react-dom';
+import {Component, createElement as E} from 'react';
 
 const _sensors = {
-}
+};
 
 class Sensors extends Component {
     constructor(props) {
@@ -23,7 +22,7 @@ class Sensors extends Component {
         const {feeds} = this.props;
 
         const headers = [E('div', {
-            key: 0,
+            key: -1,
             className: 'sensor'
         }, ['', 'Sensor', 'Last known activity'].map((h, i) =>
             E('span', {
@@ -35,32 +34,32 @@ class Sensors extends Component {
         return E('div', {
             className: 'container'
         },
-            E('h2', {
-                className: 'capturesHeader'
-            }, 'Sensors'),
-            E('div', {
-                className: 'sensors'
-            },
-                headers.concat(this.filterSensors(feeds).map((sensor, i) => {
-                    let diff = parseInt((+new Date - +new Date(sensor._source.timestamp)) / 1000, 10);
+        E('h2', {
+            className: 'capturesHeader'
+        }, 'Sensors'),
+        E('div', {
+            className: 'sensors'
+        },
+        headers.concat(this.filterSensors(feeds).map((sensor, i) => {
+            let diff = parseInt((+new Date() - +new Date(sensor._source.timestamp)) / 1000, 10);
 
-                    return E('div', {
-                        key: i,
-                        className: 'sensor'
-                    },
-                        E('span', {
-                            className: diff < 1800 ? 'sensorActive' : 'sensorInactive'
-                        }),
-                        E('span', {
-                            className: 'sensorName'
-                        }, _sensors[sensor._source.sensor] || sensor._source.sensor),
-                        E('span', {
-                            className: 'sensorLastActivity'
-                        }, `${diff} seconds ago`)
-                    )
-                }))
-            )
+            return E('div', {
+                key: i,
+                className: 'sensor'
+            },
+            E('span', {
+                className: diff < 1800 ? 'sensorActive' : 'sensorInactive'
+            }),
+            E('span', {
+                className: 'sensorName'
+            }, _sensors[sensor._source.sensor] || sensor._source.sensor),
+            E('span', {
+                className: 'sensorLastActivity'
+            }, `${diff} seconds ago`)
+            );
+        }))
         )
+        );
     }
 }
 
