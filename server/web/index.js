@@ -1,9 +1,9 @@
-import express from 'express';
+import Express from 'express';
 import elastic from 'elasticsearch';
 
 class WebServer {
     constructor() {
-        this.server = new express();
+        this.server = new Express();
         this.esclient = new elastic.Client({
             httpAuth: 'elastic:elastic',
             host: 'http://localhost:9200'
@@ -20,13 +20,13 @@ class WebServer {
                     timestamp: 'desc'
                 }]
             }, body)
-        })
+        });
     }
 
     startListening() {
         this.server.get('/search/:from(\\d+)?', (req, res) => {
             res.set('Access-Control-Allow-Origin', '*');
-            
+
             this.searchES({
                 from: req.params.from
             }).then(feeds => {
@@ -41,7 +41,7 @@ class WebServer {
                 query: {
                     term: {
                         connection_channel: 'dionaea.capture'
-                    }                 
+                    }
                 },
                 size: 200
             }).then(captures => {

@@ -132,7 +132,7 @@ class HPFeedsServer {
                             if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, hexdump(payload));
                             break;
                         }
-                    } else {
+                    } else { // Likely when local port 10000 is hit directly
                         if (self.verbose) logError(`Error: Unknown packet found: \n${hexdump(bytes)}`);
                         byteRunner = lenCompletePacket;
                     }
