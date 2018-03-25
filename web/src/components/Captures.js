@@ -1,20 +1,21 @@
 import {Component, createElement as E} from 'react';
+import {formatDateLong as formatDate} from '../util/formatDate';
 
 class Captures extends Component {
     constructor(props) {
         super(props);
     }
 
-    formatDate(ts) {
-        const pad = str => ('0' + str).substr(-2);
+    filterCaptures(captures) {
+        // Remove captures that don't have a URL set
+        return captures.filter(cap =>
+            cap._source.hasOwnProperty('url') && cap._source.url !== '');
 
-        let d = new Date(ts);
-
-        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${('00' + d.getMilliseconds()).substr(-3)}`;
+        // TODO: remove duplicates
     }
 
     render() {
-        const {captures} = this.props;
+        const captures = this.filterCaptures(this.props.captures);
 
         const headers = [E('div', {
             key: 0,
@@ -42,7 +43,7 @@ class Captures extends Component {
             },
             E('span', {
                 className: 'feedTimestamp'
-            }, this.formatDate(feed._source.timestamp)
+            }, formatDate(feed._source.timestamp)
             ),
             E('span', {
                 className: 'feedHostIp'

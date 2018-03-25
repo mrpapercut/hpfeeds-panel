@@ -61,5 +61,5 @@ window.addEventListener('load', e => {
         store: store
     },
     E(App, {})
-    ), document.body);
+    ), document.getElementById('appwrapper'));
 });

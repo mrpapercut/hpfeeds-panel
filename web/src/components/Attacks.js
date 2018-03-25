@@ -1,16 +1,9 @@
 import {Component, createElement as E} from 'react';
+import {formatDateShort as formatDate} from '../util/formatDate';
 
 class Attacks extends Component {
     constructor(props) {
         super(props);
-    }
-
-    formatDate(ts) {
-        const pad = str => ('0' + str).substr(-2);
-
-        let d = new Date(ts);
-
-        return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${('00' + d.getMilliseconds()).substr(-3)}`;
     }
 
     render() {
@@ -42,7 +35,7 @@ class Attacks extends Component {
             },
             E('span', {
                 className: 'feedTimestamp'
-            }, this.formatDate(feed._source.timestamp)
+            }, formatDate(feed._source.timestamp)
             ),
             E('span', {
                 className: 'feedHostIp'
