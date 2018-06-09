@@ -38,7 +38,7 @@ class HPFeedsServer {
         try {
             dump = hexdump(val);
         } catch (e) {
-            dump = 'Unable to hexdump';
+            dump = '[Error: Unable to hexdump]';
         }
 
         return dump;
@@ -125,6 +125,7 @@ class HPFeedsServer {
 
                         const {channel, payload, identifier, len} = vars;
 
+                        // Warning: can cause large logs, especially "payload"
                         if (self.verbose) {
                             logInfo(
                                 `Publish packet`,
@@ -143,11 +144,12 @@ class HPFeedsServer {
                             break;
                         case 'mwbinary.dionaea.sensorunique':
                             self.savePayloadToFile(payload);
-                            if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, self.hexdump(payload));
+                            // if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, self.hexdump(payload));
                             break;
                         }
-                    } else { // Likely when local port 10000 is hit directly
-                        if (self.verbose) logError(`Error: Unknown packet found: \n${self.hexdump(bytes)}`);
+                    } else {
+                        // Warning: this next line causes error.log to grow to gigabytes in minutes!
+                        // if (self.verbose) logError(`Error: Unknown packet found: \n${self.hexdump(bytes)}`);
                         byteRunner = lenCompletePacket;
                     }
                 });
