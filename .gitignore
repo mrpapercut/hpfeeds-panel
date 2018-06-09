@@ -6,3 +6,4 @@ payloads
 package-lock.json
 server.log
 error.log
+config.json
