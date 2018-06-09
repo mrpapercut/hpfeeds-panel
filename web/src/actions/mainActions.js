@@ -1,7 +1,11 @@
+import mainConfig from '../../../config.json';
+
+const webuiurl = `${document.location.protocol}//${document.location.host}:${mainConfig.webui.port}`;
+
 export const GET_FEEDS = 'GET_FEEDS';
 export const getFeeds = () => {
     return function (dispatch) {
-        return fetch('http://192.168.1.34:3000/search/')
+        return fetch(`${webuiurl}/search/`)
             .then(
                 response => response.json(),
                 error => console.log(error)
@@ -23,7 +27,7 @@ export const receiveFeeds = feeds => {
 export const GET_CAPTURES = 'GET_CAPTURES';
 export const getCaptures = () => {
     return function (dispatch) {
-        return fetch('http://192.168.1.34:3000/captures/')
+        return fetch(`${webuiurl}/captures/`)
             .then(
                 response => response.json(),
                 error => console.log(error)

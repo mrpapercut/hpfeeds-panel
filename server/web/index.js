@@ -1,8 +1,12 @@
 import Express from 'express';
 import elastic from 'elasticsearch';
 
+import mainConfig from '../../config.json';
+
 class WebServer {
     constructor() {
+        this.port = mainConfig.webui.port || 3000;
+
         this.server = new Express();
         this.esclient = new elastic.Client({
             httpAuth: 'elastic:elastic',
@@ -49,8 +53,8 @@ class WebServer {
             });
         });
 
-        this.server.listen(3000, () => {
-            console.log('WebServer started listing on port 3000');
+        this.server.listen(this.port, () => {
+            console.log(`WebServer started listing on port ${this.port}`);
         });
     }
 }
