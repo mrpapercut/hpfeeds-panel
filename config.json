@@ -1,0 +1,11 @@
+{
+    "receiver": {
+        "port": 10000
+    },
+    "webui": {
+        "port": 3000
+    },
+    "sensors": [
+
+    ]
+}
