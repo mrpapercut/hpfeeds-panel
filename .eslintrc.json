@@ -6,7 +6,8 @@
         "space-before-function-paren": "off",
         "no-multi-spaces": "off",
         "one-var": "off",
-        "no-useless-constructor": "off"
+        "no-useless-constructor": "off",
+        "no-new": "off"
     },
     "env": {
         "browser": true
