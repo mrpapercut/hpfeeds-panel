@@ -222,7 +222,7 @@ class WorldMap extends Component {
                 x: 0,
                 y: 0,
                 width: 200,
-                height: 45 + (tooltip.ids.length * 14),
+                height: 60, // 45 + (tooltip.ids.length * 14),
                 fill: '#111',
                 stroke: 'rgba(0, 255, 255, 1)',
                 strokeWidth: 1
@@ -236,7 +236,7 @@ class WorldMap extends Component {
                 fontSize: '.8em',
                 fill: '#fff'
             },
-            [tooltip.city, ' ', ...tooltip.ids].map((text, i) => E('tspan', {
+            [tooltip.city, ' ', `${tooltip.ids.length} hit(s)`].map((text, i) => E('tspan', {
                 key: i,
                 x: '1em',
                 dy: '1em'
