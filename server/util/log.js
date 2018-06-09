@@ -9,13 +9,13 @@ const getTS = () => {
 };
 
 export const logError = (...messages) => {
-    fs.appendFile(path.resolve(path.join('.', 'error.log')), `${getTS()}\n${messages.join('\n')}\n`, 'utf8', err => {
+    fs.appendFile(path.resolve(path.join('.', 'log', 'error.log')), `${getTS()}\n${messages.join('\n')}\n`, 'utf8', err => {
         if (err) throw err;
     });
 };
 
 export const logInfo = (...messages) => {
-    fs.appendFile(path.resolve(path.join('.', 'server.log')), `${getTS()}\n${messages.join('\n')}\n`, 'utf8', err => {
+    fs.appendFile(path.resolve(path.join('.', 'log', 'server.log')), `${getTS()}\n${messages.join('\n')}\n`, 'utf8', err => {
         if (err) throw err;
     });
 };

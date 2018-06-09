@@ -14,20 +14,34 @@ import {
     logInfo
 } from '../util/log';
 
+import mainConfig   from '../../config.json';
+
 let identifier = 'HPFeedsNodeJSServer';
 
 const clients = [];
 const img = [];
 
 class HPFeedsServer {
-    constructor(verbose, port) {
-        this.verbose = verbose || true;
-        this.port    = port || 10000;
+    constructor(verbose) {
+        this.verbose = verbose || false;
+        this.port    = mainConfig.receiver.port || 10000;
 
         // Vars
         this.lenIdent = null;
 
         this.createServer();
+    }
+
+    hexdump(val) {
+        let dump = '';
+
+        try {
+            dump = hexdump(val);
+        } catch (e) {
+            dump = 'Unable to hexdump';
+        }
+
+        return dump;
     }
 
     createServer() {
@@ -96,7 +110,7 @@ class HPFeedsServer {
                         this.flush();
 
                         if (self.verbose) {
-                            logInfo(`Auth packet with identifier: ${vars.identifier.toString()} and hash`, hexdump(vars.authHash));
+                            logInfo(`Auth packet with identifier: ${vars.identifier.toString()} and hash`, this.hexdump(vars.authHash));
                         }
                     } else if (vars.type === 3) {
                         this.word8bu('lenChannel');
@@ -117,7 +131,7 @@ class HPFeedsServer {
                                 ` channel: ${channel.toString()}`,
                                 ` identifier: ${identifier.toString()}`,
                                 ` len: ${len.toString()}`,
-                                ` payload: ${hexdump(payload)}`
+                                ` payload: ${this.hexdump(payload)}`
                             );
                         }
 
@@ -129,11 +143,11 @@ class HPFeedsServer {
                             break;
                         case 'mwbinary.dionaea.sensorunique':
                             self.savePayloadToFile(payload);
-                            if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, hexdump(payload));
+                            if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, this.hexdump(payload));
                             break;
                         }
                     } else { // Likely when local port 10000 is hit directly
-                        if (self.verbose) logError(`Error: Unknown packet found: \n${hexdump(bytes)}`);
+                        if (self.verbose) logError(`Error: Unknown packet found: \n${this.hexdump(bytes)}`);
                         byteRunner = lenCompletePacket;
                     }
                 });
@@ -145,7 +159,7 @@ class HPFeedsServer {
         try {
             payload = JSON.parse(payload);
         } catch (e) {
-            logError(`Error trying to process payload:`, hexdump(payload));
+            logError(`Error trying to process payload:`, this.hexdump(payload));
             return;
         }
 

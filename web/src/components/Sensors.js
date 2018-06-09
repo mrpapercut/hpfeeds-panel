@@ -1,7 +1,8 @@
 import {Component, createElement as E} from 'react';
 
-const _sensors = {
-};
+import mainConfig from '../../../config.json';
+
+const _sensors = mainConfig.sensors;
 
 class Sensors extends Component {
     constructor(props) {

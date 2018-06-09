@@ -5,7 +5,8 @@
     "webui": {
         "port": 3000
     },
-    "sensors": [
-
-    ]
+    "sensors": [{
+        "id": "",
+        "name": ""
+    }]
 }
