@@ -8,6 +8,7 @@ import hexdump      from 'hexdump-nodejs';
 import {spawn}      from 'child_process';
 
 import getGeodata   from '../util/getGeodata';
+import getVTData    from '../util/getVirustotalData';
 import md5sum       from '../util/md5sum';
 import {
     logError,
@@ -143,7 +144,11 @@ class HPFeedsServer {
                             self.processPayload(payload.toString('utf8'), channel.toString(), identifier.toString());
                             break;
                         case 'mwbinary.dionaea.sensorunique':
-                            self.savePayloadToFile(payload);
+                            self.savePayloadToFile({
+                                payload,
+                                channel: channel.toString(),
+                                identifier: identifier.toString()
+                            });
                             // if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, self.hexdump(payload));
                             break;
                         }
@@ -186,26 +191,46 @@ class HPFeedsServer {
         };
     }
 
-    savePayloadToFile(payload) {
-        const payloadsDirectory = path.resolve(path.join('.', '/payloads/'));
+    savePayloadToFile({payload, channel, identifier}) {
         const payloadhash = md5sum(payload);
 
-        fs.lstat(payloadsDirectory, (err, res) => {
-            if (err) {
-                fs.mkdir(payloadsDirectory, (err, res) => {
-                    if (err) {
-                        logError('Error creating directory `payloads`');
-                    } else {
-                        fs.writeFile(path.join(payloadsDirectory, `${payloadhash}.bin`), payload, (err, res) => {
-                            if (err) logError(`Could not write payload ${payloadhash}`);
-                        });
-                    }
-                });
-            } else {
-                fs.writeFile(path.join(payloadsDirectory, `${payloadhash}.bin`), payload, (err, res) => {
-                    if (err) logError(`Could not write payload ${payloadhash}`);
-                });
-            }
+        const payloadEvent = {
+            hash: payloadhash,
+            connection_channel: channel,
+            timestamp: +new Date(),
+            sensor: identifier
+        };
+
+        this.writeToFile(payloadhash, payload)
+            .then(() => this.addVirustotalData(payloadEvent))
+            .then(payload => this.curlPayload(payload));
+    }
+
+    writeToFile(payloadhash, payload) {
+        const payloadsDirectory = path.resolve(path.join('.', '/payloads/'));
+        const filepath = path.join(payloadsDirectory, `${payloadhash}.bin`);
+
+        return new Promise((resolve, reject) => {
+            fs.lstat(payloadsDirectory, (err, res) => {
+                if (err) {
+                    fs.mkdir(path, (err, res) => {
+                        if (err) {
+                            logError('Error creating directory `payloads`');
+                        } else {
+                            fs.writeFile(filepath, payload, (err, res) => {
+                                if (err) logError(`Could not write payload ${payloadhash}`);
+                            });
+                        }
+
+                        resolve();
+                    });
+                } else {
+                    fs.writeFile(filepath, payload, (err, res) => {
+                        if (err) logError(`Could not write payload ${payloadhash}`);
+                        resolve();
+                    });
+                }
+            });
         });
     }
 
@@ -220,6 +245,16 @@ class HPFeedsServer {
                     latitude: geodata.latitude,
                     city: geodata.fqcn
                 });
+
+                resolve(payload);
+            });
+        });
+    }
+
+    addVirustotalData(payload) {
+        return new Promise((resolve, reject) => {
+            getVTData(payload.hash).then(data => {
+                payload = Object.assign(payload, data);
 
                 resolve(payload);
             });

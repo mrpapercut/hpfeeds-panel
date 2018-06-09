@@ -53,6 +53,20 @@ class WebServer {
             });
         });
 
+        this.server.get('/binaries/', (req, res) => {
+            res.set('Access-Control-Allow-Origin', '*');
+
+            this.searchES({
+                query: {
+                    term: {
+                        connection_channel: 'mwbinary.dionaea.sensorunique'
+                    }
+                }
+            }).then(binaries => {
+                res.send(binaries);
+            });
+        });
+
         this.server.listen(this.port, () => {
             console.log(`WebServer started listing on port ${this.port}`);
         });
