@@ -14,7 +14,7 @@ const getGeodata = (ipaddr, cb) => {
                 'fqcn': `${geodata.geobytescity}, ${geodata.geobytescountry}`
             });
         } catch (e) {
-            logError(e);
+            logError(e, body);
         }
     });
 };
