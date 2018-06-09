@@ -9,5 +9,8 @@
     "sensors": [{
         "id": "",
         "name": ""
-    }]
+    }],
+    "virustotal": {
+        "apikey": ""
+    }
 }
