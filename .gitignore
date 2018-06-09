@@ -1,5 +1,6 @@
 # Folders
 node_modules
+payloads
 
 # Files
 package-lock.json
