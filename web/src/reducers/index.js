@@ -13,11 +13,13 @@ const initialState = {
 };
 
 const combineNewFeeds = (currentFeeds, newFeeds, i) => {
+    // Reset _isNew property
     currentFeeds = currentFeeds.map(f => {
         f._isNew = false;
         return f;
     });
 
+    // Add new feeds
     newFeeds.forEach(f => {
         if (currentFeeds.filter(cf => {
             return cf._source.timestamp === f._source.timestamp &&
@@ -28,6 +30,7 @@ const combineNewFeeds = (currentFeeds, newFeeds, i) => {
         }
     });
 
+    // Sort by timestamp
     currentFeeds.sort((a, b) => {
         return b._source.timestamp - a._source.timestamp;
     });
