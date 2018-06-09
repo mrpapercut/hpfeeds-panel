@@ -9,9 +9,10 @@ const getGeodata = (ipaddr, cb) => {
             const geodata = JSON.parse(body);
 
             cb(err, {
-                'latitude': parseFloat(geodata.geobyteslatitude),
-                'longitude': parseFloat(geodata.geobyteslongitude),
-                'fqcn': `${geodata.geobytescity}, ${geodata.geobytescountry}`
+                latitude: parseFloat(geodata.geobyteslatitude),
+                longitude: parseFloat(geodata.geobyteslongitude),
+                city: geodata.geobytescity,
+                country: geodata.geobytescountry
             });
         } catch (e) {
             logError(e, body);

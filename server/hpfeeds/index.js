@@ -236,14 +236,15 @@ class HPFeedsServer {
 
     addGeodata(payload) {
         return new Promise((resolve, reject) => {
-            getGeodata(payload.remote_host, (err, geodata) => {
+            getGeodata(payload.remote_host, (err, {latitude, longitude, city, country}) => {
                 if (err) logError(err);
 
                 payload = Object.assign(payload, {
-                    coordinates: [geodata.latitude, geodata.longitude],
-                    longitude: geodata.longitude,
-                    latitude: geodata.latitude,
-                    city: geodata.fqcn
+                    coordinates: [latitude, longitude],
+                    longitude,
+                    latitude,
+                    city,
+                    country
                 });
 
                 resolve(payload);
