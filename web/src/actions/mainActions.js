@@ -1,6 +1,6 @@
 import mainConfig from '../../../config.json';
 
-const webuiurl = `${document.location.protocol}//${document.location.host}:${mainConfig.webui.port}`;
+const webuiurl = `${mainConfig.webui.host}:${mainConfig.webui.port}`;
 
 export const GET_FEEDS = 'GET_FEEDS';
 export const getFeeds = () => {

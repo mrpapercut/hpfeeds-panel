@@ -14,7 +14,11 @@ class Sensors extends Component {
             return sensor.id === sensorid;
         });
 
-        return sensor || sensorid;
+        if (sensor && sensor[0] && sensor[0].name) {
+            return sensor[0].name;
+        } else {
+            return sensorid;
+        }
     }
 
     filterSensors(feeds) {
