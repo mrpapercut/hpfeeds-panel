@@ -31,6 +31,7 @@
   },
   "scripts": {
     "server": "babel-node ./start-server.js",
+    "server-verbose": "babel-node ./start-server.js --verbose",
     "server-log": "babel-node ./start-server.js --verbose >> server.log",
     "web": "webpack",
     "web-watch": "webpack --colors --progress --watch"
