@@ -9,6 +9,14 @@ class Sensors extends Component {
         super(props);
     }
 
+    getSensorNameById(sensorid) {
+        const sensor = _sensors.filter(sensor => {
+            return sensor.id === sensorid;
+        });
+
+        return sensor || sensorid;
+    }
+
     filterSensors(feeds) {
         let sensors = feeds
             .map(f => f._source.sensor)
@@ -53,7 +61,7 @@ class Sensors extends Component {
             }),
             E('span', {
                 className: 'sensorName'
-            }, _sensors[sensor._source.sensor] || sensor._source.sensor),
+            }, this.getSensorNameById(sensor._source.sensor)),
             E('span', {
                 className: 'sensorLastActivity'
             }, `${diff} seconds ago`)
