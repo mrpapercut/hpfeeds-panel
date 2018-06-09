@@ -32,7 +32,8 @@ class WebServer {
             res.set('Access-Control-Allow-Origin', '*');
 
             this.searchES({
-                from: req.params.from
+                from: req.params.from,
+                size: 50
             }).then(feeds => {
                 res.send(feeds);
             });
@@ -61,7 +62,8 @@ class WebServer {
                     term: {
                         connection_channel: 'mwbinary.dionaea.sensorunique'
                     }
-                }
+                },
+                size: 50
             }).then(binaries => {
                 res.send(binaries);
             });
