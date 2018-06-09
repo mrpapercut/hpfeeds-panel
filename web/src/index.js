@@ -12,6 +12,7 @@ import Attacks      from './components/Attacks';
 import WorldMap     from './components/WorldMap';
 import Captures     from './components/Captures';
 import Sensors      from './components/Sensors';
+import Graphs       from './components/Graphs';
 
 const store = createStore();
 
@@ -40,18 +41,16 @@ class App extends Component {
     }
 
     render() {
-        const {
-            feeds,
-            captures
-        } = this.state;
+        const {feeds, captures} = this.state;
 
         return E('div', {
             className: 'wrapper'
         },
-        E(WorldMap, {feeds: feeds}),
-        E(Attacks, {feeds: feeds}),
-        E(Captures, {captures: captures}),
-        E(Sensors, {feeds: feeds})
+            E(WorldMap, {feeds}),
+            E(Attacks, {feeds}),
+            E(Captures, {captures}),
+            E(Sensors, {feeds}),
+            E(Graphs)
         );
     }
 }
@@ -60,6 +59,6 @@ window.addEventListener('load', e => {
     DOM.render(E(Provider, {
         store: store
     },
-    E(App, {})
+        E(App, {})
     ), document.getElementById('appwrapper'));
 });

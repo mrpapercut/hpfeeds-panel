@@ -1,7 +1,7 @@
 {
     "extends": "standard",
     "rules": {
-        "indent": ["error", 4],
+        "indent": ["off", 4],
         "semi": ["error", "always"],
         "space-before-function-paren": "off",
         "no-multi-spaces": "off",

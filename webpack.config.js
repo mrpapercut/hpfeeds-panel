@@ -9,8 +9,8 @@ module.exports = {
     entry: ['./web/src/index.js', './web/css/index.scss'],
     mode: 'development',
     output: {
-        path: path.resolve(__dirname, "web", "dist"),
-        filename: "js/[name].js"
+        path: path.resolve(__dirname, 'web', 'dist'),
+        filename: 'js/[name].js'
     },
     module: {
         rules: [{

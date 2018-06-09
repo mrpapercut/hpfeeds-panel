@@ -49,7 +49,7 @@ class Attacks extends Component {
             E('span', {
                 className: 'feedLocalLocation',
                 title: feed._source.city
-            }, feed._source.city)
+            }, `${feed._source.city}, ${feed._source.country || ''}`)
             ))) : null
         )
         );
