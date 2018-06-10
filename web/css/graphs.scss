@@ -4,4 +4,23 @@
     .chartsHeader {
         text-align: center;
     }
+
+    .topIp {
+        .recharts-legend-item {
+            clear: both;
+            width: 100%;
+        }
+    }
+
+    .topPorts,
+    .topCountries {
+        .recharts-legend-item {
+            width: calc(50% - 10px);
+
+            &:nth-child(-n + 5) {
+                float: left;
+                clear: left;
+            }
+        }
+    }
 }

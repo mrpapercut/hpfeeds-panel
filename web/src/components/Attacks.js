@@ -1,23 +1,48 @@
 import {Component, createElement as E} from 'react';
 import {connect} from 'react-redux';
 
+import {getFeeds} from '../actions/mainActions';
+
 import {formatDateShort as formatDate} from '../util/formatDate';
 
 class Attacks extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            feeds: this.props.feeds
+        };
+    }
+
+    componentDidMount() {
+        const feedsLoop = () => {
+            this.props.getFeeds();
+        };
+        this.feedsLoop = window.setInterval(feedsLoop, 2000);
+        feedsLoop();
+    }
+
+    componentWillUnmount() {
+        window.clearInterval(this.feedsLoop);
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.feeds.length > this.state.feeds.length) {
+            this.setState({
+                feeds: newProps.feeds
+            });
+        }
     }
 
     render() {
-        const {feeds} = this.props;
+        const feeds = this.state.feeds;
 
         const headers = [E('div', {
             key: 0,
-            className: 'feed'
+            className: 'feedHeader'
         }, ['Time', 'IP', 'Port', 'Protocol', 'Origin'].map((h, i) =>
             E('span', {
-                key: i,
-                className: 'feedHeader'
+                key: i
             }, h))
         )];
 
@@ -65,4 +90,10 @@ const mapStateToProps = ({feeds}) => {
     };
 };
 
-export default connect(mapStateToProps, null)(Attacks);
+const mapDispatchToProps = dispatch => {
+    return {
+        getFeeds: () => dispatch(getFeeds())
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Attacks);

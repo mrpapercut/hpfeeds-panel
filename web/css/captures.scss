@@ -3,7 +3,8 @@
     overflow-y: auto;
     max-height: 100px;
 
-    .feed {
+    .feed,
+    .feedHeader {
         display: grid;
         grid-template-columns: 24% 14% 6% 19% 24%;
         grid-gap: 2px;

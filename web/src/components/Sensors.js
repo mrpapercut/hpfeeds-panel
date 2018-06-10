@@ -37,11 +37,10 @@ class Sensors extends Component {
 
         const headers = [E('div', {
             key: -1,
-            className: 'sensor'
+            className: 'feedHeader'
         }, ['', 'Sensor', 'Last known activity'].map((h, i) =>
             E('span', {
-                key: i,
-                className: 'sensorHeader'
+                key: i
             }, h))
         )];
 
@@ -49,7 +48,7 @@ class Sensors extends Component {
             className: 'container'
         },
             E('h2', {
-                className: 'capturesHeader'
+                className: 'sensorsHeader'
             }, 'Sensors'),
             E('div', {
                 className: 'sensors'
@@ -59,7 +58,7 @@ class Sensors extends Component {
 
                     return E('div', {
                         key: i,
-                        className: 'sensor'
+                        className: 'feed'
                     },
                         E('span', {
                             className: diff < 1800 ? 'sensorActive' : 'sensorInactive'

@@ -47,3 +47,26 @@ export const receiveCaptures = captures => {
         totalCaptures: captures.hits.total
     };
 };
+
+export const GET_BINARIES = 'GET_BINARIES';
+export const getBinaries = () => {
+    return function(dispatch) {
+        return fetch(`${webuiurl}/binaries/`)
+            .then(
+                response => response.json(),
+                error => console.log(error)
+            ).then(json => {
+                return dispatch(receiveBinaries(json));
+            }).catch(error => {
+                console.log(error);
+            });
+    };
+};
+
+export const RECEIVE_BINARIES = 'RECEIVE_BINARIES';
+export const receiveBinaries = binaries => {
+    return {
+        type: RECEIVE_BINARIES,
+        binaries: binaries.hits.hits
+    };
+};

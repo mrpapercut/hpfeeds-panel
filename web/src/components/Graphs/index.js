@@ -54,9 +54,8 @@ class Graphs extends Component {
     }
 };
 
-const mapStateToProps = ({feeds}) => {
+const mapStateToProps = () => {
     return {
-        feeds,
         colors: [
             '#004c4c',
             '#006666',

@@ -9,19 +9,12 @@ import {
     Marker
 } from 'react-simple-maps';
 
-/*
-import { scaleLinear } from 'd3-scale';
-const cityScale = (value, max) =>
-    (scaleLinear()
-        .domain([0, max])
-        .range([1, 25]))(value);
-*/
-
 class WorldMap extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            feeds: this.props.feeds,
             zoom: 1,
             center: [0, 20],
             tooltip: {
@@ -38,6 +31,14 @@ class WorldMap extends Component {
 
     componentWillUnmount() {
         window.removeEventListener('wheel', this.handleScroll.bind(this));
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.feeds.length > this.state.feeds.length) {
+            this.setState({
+                feeds: newProps.feeds
+            });
+        }
     }
 
     handleScroll(e) {
@@ -124,7 +125,7 @@ class WorldMap extends Component {
     }
 
     render() {
-        const feeds = this.groupFeeds(this.props.feeds);
+        const feeds = this.groupFeeds(this.state.feeds);
 
         const {tooltip} = this.state;
 

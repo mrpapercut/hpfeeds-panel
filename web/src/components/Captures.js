@@ -1,6 +1,8 @@
 import {Component, createElement as E} from 'react';
 import {connect} from 'react-redux';
 
+import {getCaptures} from '../actions/mainActions';
+
 import {formatDateLong as formatDate} from '../util/formatDate';
 
 class Captures extends Component {
@@ -8,12 +10,27 @@ class Captures extends Component {
         super(props);
     }
 
-    filterCaptures(captures) {
-        // Remove captures that don't have a URL set
-        return captures.filter(cap =>
-            cap._source.hasOwnProperty('url') && cap._source.url !== '');
+    componentDidMount() {
+        const capturesLoop = () => {
+            this.props.getCaptures();
+        };
+        this.capturesLoop = window.setInterval(capturesLoop, 9000);
+        capturesLoop();
+    }
 
-        // TODO: remove duplicates
+    componentWillUnmount() {
+        window.clearInterval(this.capturesLoop);
+    }
+
+    filterCaptures(captures) {
+        const unique = (array) => {
+            return array.filter((e, i) => array.findIndex(a => a._source['url'] === e._source['url']) === i);
+        };
+
+        // Remove captures that don't have a URL set
+        return unique(captures.filter(cap => {
+            return cap._source.hasOwnProperty('url') && cap._source.url !== '';
+        }));
     }
 
     render() {
@@ -21,11 +38,10 @@ class Captures extends Component {
 
         const headers = [E('div', {
             key: 0,
-            className: 'feed'
+            className: 'feedHeader'
         }, ['Time', 'IP', 'Port', 'Origin', 'Url'].map((h, i) =>
             E('span', {
-                key: i,
-                className: 'feedHeader'
+                key: i
             }, h))
         )];
 
@@ -34,7 +50,7 @@ class Captures extends Component {
         },
             E('h2', {
                 className: 'capturesHeader'
-            }, 'Latest captures'),
+            }, 'Caught URLs'),
             E('div', {
                 className: 'captures'
             },
@@ -72,4 +88,10 @@ const mapStateToProps = ({captures}) => {
     };
 };
 
-export default connect(mapStateToProps, null)(Captures);
+const mapDispatchToProps = dispatch => {
+    return {
+        getCaptures: () => dispatch(getCaptures())
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Captures);

@@ -6,10 +6,31 @@ import getTopFromFeeds from '../../util/getTopFromFeeds';
 class TopCountries extends Component {
     constructor(props) {
         super(props);
+
+        this.tick = 0;
+
+        this.state = {
+            feeds: this.props.feeds
+        };
+    }
+
+    componentWillMount() {
+        // Only update once every 10 second min
+        window.setInterval(() => {
+            this.tick++;
+        }, 1000);
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.feeds.length > this.state.feeds.length && this.tick % 10 < 2) {
+            this.setState({
+                feeds: newProps.feeds
+            });
+        }
     }
 
     parseTopPorts() {
-        const {feeds} = this.props;
+        const {feeds} = this.state;
 
         return getTopFromFeeds(feeds, 'country', 10);
     }
