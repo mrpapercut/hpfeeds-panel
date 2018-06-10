@@ -1,4 +1,5 @@
 import {Component, createElement as E} from 'react';
+import {connect} from 'react-redux';
 
 import mainConfig from '../../../config.json';
 
@@ -47,33 +48,39 @@ class Sensors extends Component {
         return E('div', {
             className: 'container'
         },
-        E('h2', {
-            className: 'capturesHeader'
-        }, 'Sensors'),
-        E('div', {
-            className: 'sensors'
-        },
-        headers.concat(this.filterSensors(feeds).map((sensor, i) => {
-            let diff = parseInt((+new Date() - +new Date(sensor._source.timestamp)) / 1000, 10);
-
-            return E('div', {
-                key: i,
-                className: 'sensor'
+            E('h2', {
+                className: 'capturesHeader'
+            }, 'Sensors'),
+            E('div', {
+                className: 'sensors'
             },
-            E('span', {
-                className: diff < 1800 ? 'sensorActive' : 'sensorInactive'
-            }),
-            E('span', {
-                className: 'sensorName'
-            }, this.getSensorNameById(sensor._source.sensor)),
-            E('span', {
-                className: 'sensorLastActivity'
-            }, `${diff} seconds ago`)
-            );
-        }))
-        )
+                headers.concat(this.filterSensors(feeds).map((sensor, i) => {
+                    let diff = parseInt((+new Date() - +new Date(sensor._source.timestamp)) / 1000, 10);
+
+                    return E('div', {
+                        key: i,
+                        className: 'sensor'
+                    },
+                        E('span', {
+                            className: diff < 1800 ? 'sensorActive' : 'sensorInactive'
+                        }),
+                        E('span', {
+                            className: 'sensorName'
+                        }, this.getSensorNameById(sensor._source.sensor)),
+                        E('span', {
+                            className: 'sensorLastActivity'
+                        }, `${diff} seconds ago`)
+                    );
+                }))
+            )
         );
     }
 }
 
-export default Sensors;
+const mapStateToProps = ({feeds}) => {
+    return {
+        feeds
+    };
+};
+
+export default connect(mapStateToProps, null)(Sensors);

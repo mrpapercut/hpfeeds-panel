@@ -5,7 +5,8 @@ import {Provider}   from 'react-redux';
 import createStore  from './createStore';
 import {
     getFeeds,
-    getCaptures
+    getCaptures,
+    getBinaries
 } from './actions/mainActions';
 
 import Attacks      from './components/Attacks';
@@ -24,16 +25,20 @@ class App extends Component {
     }
 
     componentDidMount() {
-        const performGet = () => {
+        const feedsLoop = () => {
             store.dispatch(getFeeds()).then(() =>
-                this.setState(store.getState()));
-
-            store.dispatch(getCaptures()).then(() =>
                 this.setState(store.getState()));
         };
 
-        window.setInterval(performGet, 2000);
-        performGet();
+        window.setInterval(feedsLoop, 2000);
+        feedsLoop();
+
+        const capturesLoop = () => {
+            store.dispatch(getCaptures());
+            store.dispatch(getBinaries());
+        };
+        window.setInterval(capturesLoop, 10000);
+        capturesLoop();
     }
 
     componentDidUpdate() {
@@ -41,15 +46,13 @@ class App extends Component {
     }
 
     render() {
-        const {feeds, captures} = this.state;
-
         return E('div', {
             className: 'wrapper'
         },
-            E(WorldMap, {feeds}),
-            E(Attacks, {feeds}),
-            E(Captures, {captures}),
-            E(Sensors, {feeds}),
+            E(WorldMap),
+            E(Attacks),
+            E(Captures),
+            E(Sensors),
             E(Graphs)
         );
     }

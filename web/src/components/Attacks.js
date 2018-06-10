@@ -1,4 +1,6 @@
 import {Component, createElement as E} from 'react';
+import {connect} from 'react-redux';
+
 import {formatDateShort as formatDate} from '../util/formatDate';
 
 class Attacks extends Component {
@@ -33,23 +35,23 @@ class Attacks extends Component {
                         key: feed._id,
                         className: 'feed'
                     },
-                    E('span', {
-                        className: 'feedTimestamp'
-                    }, formatDate(feed._source.timestamp)
-                    ),
-                    E('span', {
-                        className: 'feedHostIp'
-                    }, feed._source.remote_host),
-                    E('span', {
-                        className: 'feedLocalPort'
-                    }, feed._source.local_port),
-                    E('span', {
-                        className: 'feedConnectionProtocol'
-                    }, feed._source.connection_protocol || ''),
-                    E('span', {
-                        className: 'feedLocalLocation',
-                        title: feed._source.city
-                    }, `${feed._source.city}, ${feed._source.country || ''}`)
+                        E('span', {
+                            className: 'feedTimestamp'
+                        }, formatDate(feed._source.timestamp)
+                        ),
+                        E('span', {
+                            className: 'feedHostIp'
+                        }, feed._source.remote_host),
+                        E('span', {
+                            className: 'feedLocalPort'
+                        }, feed._source.local_port),
+                        E('span', {
+                            className: 'feedConnectionProtocol'
+                        }, feed._source.connection_protocol || ''),
+                        E('span', {
+                            className: 'feedLocalLocation',
+                            title: feed._source.city
+                        }, `${feed._source.city}, ${feed._source.country || ''}`)
                     ))
                 ) : null
             )
@@ -57,4 +59,10 @@ class Attacks extends Component {
     }
 }
 
-export default Attacks;
+const mapStateToProps = ({feeds}) => {
+    return {
+        feeds
+    };
+};
+
+export default connect(mapStateToProps, null)(Attacks);

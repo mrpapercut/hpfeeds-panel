@@ -1,4 +1,6 @@
 import {Component, createElement as E} from 'react';
+import {connect} from 'react-redux';
+
 import {formatDateLong as formatDate} from '../util/formatDate';
 
 class Captures extends Component {
@@ -30,38 +32,44 @@ class Captures extends Component {
         return E('div', {
             className: 'container'
         },
-        E('h2', {
-            className: 'capturesHeader'
-        }, 'Latest captures'),
-        E('div', {
-            className: 'captures'
-        },
-        captures.length > 0 ? headers.concat(captures.map(feed =>
+            E('h2', {
+                className: 'capturesHeader'
+            }, 'Latest captures'),
             E('div', {
-                key: feed._id,
-                className: 'feed'
+                className: 'captures'
             },
-            E('span', {
-                className: 'feedTimestamp'
-            }, formatDate(feed._source.timestamp)
-            ),
-            E('span', {
-                className: 'feedHostIp'
-            }, feed._source.remote_host),
-            E('span', {
-                className: 'feedLocalPort'
-            }, feed._source.local_port),
-            E('span', {
-                className: 'feedLocalLocation',
-                title: feed._source.city
-            }, feed._source.city),
-            E('span', {
-                className: 'feedUrl'
-            }, feed._source.url)
-            ))) : null
-        )
+                captures.length > 0 ? headers.concat(captures.map(feed =>
+                    E('div', {
+                        key: feed._id,
+                        className: 'feed'
+                    },
+                        E('span', {
+                            className: 'feedTimestamp'
+                        }, formatDate(feed._source.timestamp)),
+                        E('span', {
+                            className: 'feedHostIp'
+                        }, feed._source.remote_host),
+                        E('span', {
+                            className: 'feedLocalPort'
+                        }, feed._source.local_port),
+                        E('span', {
+                            className: 'feedLocalLocation',
+                            title: feed._source.city
+                        }, feed._source.city),
+                        E('span', {
+                            className: 'feedUrl'
+                        }, feed._source.url)
+                    )
+                )) : null
+            )
         );
     }
 }
 
-export default Captures;
+const mapStateToProps = ({captures}) => {
+    return {
+        captures
+    };
+};
+
+export default connect(mapStateToProps, null)(Captures);
