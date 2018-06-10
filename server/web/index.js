@@ -48,7 +48,7 @@ class WebServer {
                         connection_channel: 'dionaea.capture'
                     }
                 },
-                size: 200
+                size: 250
             }).then(captures => {
                 res.send(captures);
             });
@@ -63,7 +63,7 @@ class WebServer {
                         connection_channel: 'mwbinary.dionaea.sensorunique'
                     }
                 },
-                size: 50
+                size: 250
             }).then(binaries => {
                 res.send(binaries);
             });
