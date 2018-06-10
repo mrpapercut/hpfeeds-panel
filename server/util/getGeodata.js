@@ -16,6 +16,12 @@ const getGeodata = (ipaddr, cb) => {
             });
         } catch (e) {
             logError(e, body);
+            cb(err, {
+                latitude: 0.0,
+                longitude: 0.0,
+                city: '',
+                country: ''
+            });
         }
     });
 };
