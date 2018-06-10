@@ -1,7 +1,7 @@
 .sensors {
     overflow-x: hidden;
     overflow-y: auto;
-    height: 200px;
+    max-height: 100px;
 
     .sensor {
         display: grid;

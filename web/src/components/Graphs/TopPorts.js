@@ -20,7 +20,7 @@ class TopPorts extends Component {
 
         return E(PieChart, {
             width: 280,
-            height: 300
+            height: 250
         },
             E(Pie, {
                 dataKey: 'value',
