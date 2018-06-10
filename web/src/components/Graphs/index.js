@@ -11,7 +11,7 @@ class Graphs extends Component {
     }
 
     render() {
-        return E('div', {
+        return E('section', {
             className: 'container'
         },
             E('div', {

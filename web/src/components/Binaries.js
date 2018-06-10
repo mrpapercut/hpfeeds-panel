@@ -51,7 +51,7 @@ class Binaries extends Component {
             }, h))
         )];
 
-        return E('div', {
+        return E('section', {
             className: 'container'
         },
             E('h2', {

@@ -129,7 +129,7 @@ class WorldMap extends Component {
 
         const {tooltip} = this.state;
 
-        return E('div', {
+        return E('section', {
             className: 'container worldMapWrapper'
         },
             E(ComposableMap, {
