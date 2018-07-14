@@ -56,7 +56,7 @@ class WebServer {
                         }]
                     }
                 },
-                size: 25
+                size: 100
             }).then(captures => {
                 res.send(captures);
             });
