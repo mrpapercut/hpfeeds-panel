@@ -48,7 +48,7 @@ class WebServer {
                         connection_channel: 'dionaea.capture'
                     }
                 },
-                size: 250
+                size: 500
             }).then(captures => {
                 res.send(captures);
             });
