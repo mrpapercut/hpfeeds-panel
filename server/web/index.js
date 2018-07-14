@@ -50,10 +50,10 @@ class WebServer {
                 },
                 filter : {
                     exists : {
-                       field : "url"
+                       field : 'url'
                     }
                 },
-                size: 500
+                size: 25
             }).then(captures => {
                 res.send(captures);
             });
