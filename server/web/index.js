@@ -48,6 +48,11 @@ class WebServer {
                         connection_channel: 'dionaea.capture'
                     }
                 },
+                filter : {
+                    exists : {
+                       field : "url"
+                    }
+                },
                 size: 500
             }).then(captures => {
                 res.send(captures);
