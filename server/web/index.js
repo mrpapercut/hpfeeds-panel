@@ -44,13 +44,16 @@ class WebServer {
 
             this.searchES({
                 query: {
-                    term: {
-                        connection_channel: 'dionaea.capture'
-                    }
-                },
-                filter : {
-                    exists : {
-                       field : 'url'
+                    bool: {
+                        must: [{
+                            match: {
+                                connection_channel: 'dionaea.capture'
+                            }
+                        }, {
+                            regexp: {
+                                url: '.+'
+                            }
+                        }]
                     }
                 },
                 size: 25
