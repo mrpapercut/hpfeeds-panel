@@ -10,6 +10,7 @@ import {spawn}      from 'child_process';
 import getGeodata   from '../util/getGeodata';
 import getVTData    from '../util/getVirustotalData';
 import md5sum       from '../util/md5sum';
+import Telegram     from '../util/Telegram';
 import {
     logError,
     logInfo
@@ -203,6 +204,7 @@ class HPFeedsServer {
 
         this.writeToFile(payloadhash, payload)
             .then(() => this.addVirustotalData(payloadEvent))
+            .then(payload => this.sendTelegramMessage(payload))
             .then(payload => this.curlPayload(payload));
     }
 
@@ -258,6 +260,19 @@ class HPFeedsServer {
                 payload = Object.assign(payload, data);
 
                 resolve(payload);
+            });
+        });
+    }
+
+    sendTelegramMessage(payload) {
+        const flame = '🔥';
+        const telegram = new Telegram();
+
+        let message = `${flame}${flame} New binary caught! ${payload.hash} (${payload.detection})`;
+
+        return new Promise((resolve, reject) => {
+            telegram.sendMessage(message).then(res => {
+                resolve(payload); // Return the payload to use in next function
             });
         });
     }
