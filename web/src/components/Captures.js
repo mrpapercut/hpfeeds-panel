@@ -28,9 +28,11 @@ class Captures extends Component {
         };
 
         // Remove captures that don't have a URL set
-        return unique(captures.filter(cap => {
+        captures = unique(captures.filter(cap => {
             return cap._source.hasOwnProperty('url') && cap._source.url !== '';
         }));
+
+        return captures;
     }
 
     render() {

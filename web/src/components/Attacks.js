@@ -35,7 +35,7 @@ class Attacks extends Component {
     }
 
     render() {
-        const feeds = this.state.feeds;
+        const feeds = this.state.feeds.slice(0, 14);
 
         const headers = [E('div', {
             key: 0,

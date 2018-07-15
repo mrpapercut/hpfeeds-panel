@@ -30,9 +30,11 @@ const combineNewFeeds = (currentFeeds, newFeeds, i) => {
         return array.filter((e, i) => array.findIndex(a => a[propertyName] === e[propertyName]) === i);
     };
 
-    return unique(currentFeeds.concat(newFeeds), '_id').sort((a, b) => {
+    let feeds = unique(currentFeeds.concat(newFeeds), '_id').sort((a, b) => {
         return b._source.timestamp - a._source.timestamp;
     });
+
+    return feeds;
 };
 
 const mainReducer = (state = initialState, action) => {
