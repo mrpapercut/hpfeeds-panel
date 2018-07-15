@@ -145,6 +145,7 @@ class HPFeedsServer {
                             self.processPayload(payload.toString('utf8'), channel.toString(), identifier.toString());
                             break;
                         case 'mwbinary.dionaea.sensorunique':
+                            logInfo('Caught binary');
                             self.savePayloadToFile({
                                 payload,
                                 channel: channel.toString(),
@@ -269,6 +270,8 @@ class HPFeedsServer {
         const telegram = new Telegram();
 
         let message = `${flame}${flame} New binary caught! ${payload.hash} (${payload.detection})`;
+
+        logInfo(`sending message: ${message}`);
 
         return new Promise((resolve, reject) => {
             telegram.sendMessage(message).then(res => {
