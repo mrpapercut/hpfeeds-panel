@@ -19,8 +19,8 @@ class TopPorts extends Component {
         const data = this.parseTopPorts();
 
         return E(PieChart, {
-            width: 280,
-            height: 250
+            width: window.innerWidth / 6,
+            height: window.innerHeight / 5
         },
             E(Pie, {
                 dataKey: 'value',

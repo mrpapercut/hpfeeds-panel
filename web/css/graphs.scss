@@ -1,9 +1,14 @@
 .graphsWrapper {
     .graph {
         float: left;
+        width: 33%;
 
         .chartsHeader {
             text-align: center;
+        }
+
+        .recharts-wrapper {
+            margin: 0 auto;
         }
 
         .topIp {
