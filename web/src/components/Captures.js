@@ -14,7 +14,7 @@ class Captures extends Component {
         const capturesLoop = () => {
             this.props.getCaptures();
         };
-        this.capturesLoop = window.setInterval(capturesLoop, 9000);
+        this.capturesLoop = window.setInterval(capturesLoop, 30000);
         capturesLoop();
     }
 
@@ -46,13 +46,13 @@ class Captures extends Component {
         )];
 
         return E('section', {
-            className: 'container'
+            className: 'container capturesWrapper'
         },
             E('h2', {
                 className: 'capturesHeader'
             }, 'Caught URLs'),
             E('div', {
-                className: 'captures'
+                className: 'captures innerWrapper'
             },
                 captures.length > 0 ? headers.concat(captures.map(feed =>
                     E('div', {

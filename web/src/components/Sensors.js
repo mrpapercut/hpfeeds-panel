@@ -45,13 +45,13 @@ class Sensors extends Component {
         )];
 
         return E('section', {
-            className: 'container'
+            className: 'container sensorsWrapper'
         },
             E('h2', {
                 className: 'sensorsHeader'
             }, 'Sensors'),
             E('div', {
-                className: 'sensors'
+                className: 'sensors innerWrapper'
             },
                 headers.concat(this.filterSensors(feeds).map((sensor, i) => {
                     let diff = parseInt((+new Date() - +new Date(sensor._source.timestamp)) / 1000, 10);

@@ -47,13 +47,13 @@ class Attacks extends Component {
         )];
 
         return E('section', {
-            className: 'container'
+            className: 'container attacksWrapper'
         },
             E('h2', {
                 className: 'feedsHeader'
             }, 'Latest connections'),
             E('div', {
-                className: 'feeds'
+                className: 'feeds innerWrapper'
             },
                 feeds.length > 0 ? headers.concat(feeds.map(feed =>
                     E('div', {

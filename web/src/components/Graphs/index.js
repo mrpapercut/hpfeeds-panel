@@ -12,7 +12,7 @@ class Graphs extends Component {
 
     render() {
         return E('section', {
-            className: 'container'
+            className: 'container graphsWrapper'
         },
             E('div', {
                 className: 'graph'

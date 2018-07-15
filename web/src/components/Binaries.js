@@ -52,13 +52,13 @@ class Binaries extends Component {
         )];
 
         return E('section', {
-            className: 'container'
+            className: 'container binariesWrapper'
         },
             E('h2', {
                 className: 'binariesHeader'
             }, 'Caught Binaries'),
             E('div', {
-                className: 'binaries'
+                className: 'binaries innerWrapper'
             },
                 binaries.length > 0 ? headers.concat(binaries.map(feed =>
                     E('div', {

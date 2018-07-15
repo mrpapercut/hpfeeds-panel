@@ -16,6 +16,39 @@ body {
         border-radius: 2px;
         padding: 1em;
         position: relative;
+
+        &.worldMapWrapper,
+        &.attacksWrapper {
+            height: calc(50vh - 2em);
+
+            .innerWrapper {
+                overflow-x: hidden;
+                overflow-y: auto;
+                max-height: calc(50vh - 4rem);
+            }
+        }
+
+        &.capturesWrapper,
+        &.sensorsWrapper {
+            height: calc(18vh - 2em);
+
+            .innerWrapper {
+                overflow-x: hidden;
+                overflow-y: auto;
+                max-height: calc(18vh - 4rem);
+            }
+        }
+
+        &.graphsWrapper,
+        &.binariesWrapper {
+            height: calc(27vh - 2em);
+
+            .innerWrapper {
+                overflow-x: hidden;
+                overflow-y: auto;
+                max-height: calc(27vh - 4rem);
+            }
+        }
     }
 
     h2 {
