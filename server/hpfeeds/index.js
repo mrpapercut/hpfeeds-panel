@@ -205,8 +205,10 @@ class HPFeedsServer {
 
         this.writeToFile(payloadhash, payload)
             .then(() => this.addVirustotalData(payloadEvent))
-            .then(payload => this.sendTelegramMessage(payload))
-            .then(payload => this.curlPayload(payload));
+            .then(payload => {
+                this.sendTelegramMessage(payload);
+                this.curlPayload(payload);
+            });
     }
 
     writeToFile(payloadhash, payload) {
@@ -269,14 +271,15 @@ class HPFeedsServer {
         const flame = '🔥';
         const telegram = new Telegram();
 
-        let message = `${flame}${flame} New binary caught! ${payload.hash} (${payload.detection})`;
+        let message = [
+            `${flame}${flame}${flame} New binary caught! ${payload.hash} from ${payload.remote_host} (VT: ${payload.detection})`,
+            `Vendors: ${JSON.stringify(payload.vendors, null, 2)}`
+        ].join('\n');
 
-        logInfo(`sending message: ${message}`);
+        logInfo(`Sending message: ${message}`);
 
-        return new Promise((resolve, reject) => {
-            telegram.sendMessage(message).then(res => {
-                resolve(payload); // Return the payload to use in next function
-            });
+        telegram.sendMessage(message).then(res => {
+            logInfo(`Message sent: ${message}`)
         });
     }
 
