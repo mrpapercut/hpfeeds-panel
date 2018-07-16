@@ -273,7 +273,8 @@ class HPFeedsServer {
 
         let message = [
             `${flame}${flame}${flame} New binary caught! ${payload.hash} from ${payload.remote_host} (VT: ${payload.detection})`,
-            `Vendors: ${JSON.stringify(payload.vendors, null, 2)}`
+            `Vendors: ${JSON.stringify(payload.vendors, null, 2)}`,
+            JSON.stringify(payload)
         ].join('\n');
 
         logInfo(`Sending message: ${message}`);
