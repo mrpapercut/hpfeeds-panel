@@ -205,9 +205,9 @@ class HPFeedsServer {
 
         this.writeToFile(payloadhash, payload)
             .then(() => this.addVirustotalData(payloadEvent))
-            .then(payload => {
-                this.sendTelegramMessage(payload);
-                this.curlPayload(payload);
+            .then(bundledPayload => {
+                this.sendTelegramMessage(bundledPayload);
+                this.curlPayload(bundledPayload);
             });
     }
 
