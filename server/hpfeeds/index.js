@@ -272,14 +272,20 @@ class HPFeedsServer {
         const telegram = new Telegram();
 
         let message = [
-            `${flame}${flame}${flame} New binary caught! ${payload.hash} from ${payload.remote_host} (VT: ${payload.detection})`,
-            `Vendors: ${JSON.stringify(payload.vendors, null, 2)}`,
-            JSON.stringify(payload)
-        ].join('\n');
+            `${flame}${flame}${flame} New binary caught! ${payload.hash} (VT: ${payload.detection})`
+        ];
+
+        if (payload.vendors) {
+            message.concat([
+                `Vendors:`,
+                ...payload.vendors.map((v => `${v.vendor}: ${v.result}`)),
+                payload.permalink
+            ])
+        }
 
         logInfo(`Sending message: ${message}`);
 
-        telegram.sendMessage(message).then(res => {
+        telegram.sendMessage(message.join('\n')).then(res => {
             logInfo(`Message sent: ${message}`)
         });
     }
