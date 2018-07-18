@@ -206,8 +206,9 @@ class HPFeedsServer {
         this.writeToFile(payloadhash, payload)
             .then(() => this.addVirustotalData(payloadEvent))
             .then(bundledPayload => {
-                this.sendTelegramMessage(bundledPayload);
+                logInfo(`Curling payload & sending notification`);
                 this.curlPayload(bundledPayload);
+                this.sendTelegramMessage(bundledPayload);
             });
     }
 
@@ -291,6 +292,8 @@ class HPFeedsServer {
     }
 
     curlPayload(payload) {
+        logInfo(`Sending payload to elastic: ${payload}`);
+
         const curlrequest = spawn('curl', [
             '--user', 'elastic:elastic',
             '-X', 'POST', 'http://localhost:9200/hpfeeds/feed',
