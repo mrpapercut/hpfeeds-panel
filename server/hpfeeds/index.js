@@ -292,7 +292,9 @@ class HPFeedsServer {
     }
 
     curlPayload(payload) {
-        logInfo(`Sending payload to elastic: ${payload}`);
+        if (payload.connection_channel === 'mwbinary.dionaea.sensorunique') {
+            logInfo(`Sending payload to elastic: ${payload}`);
+        }
 
         const curlrequest = spawn('curl', [
             '--user', 'elastic:elastic',
