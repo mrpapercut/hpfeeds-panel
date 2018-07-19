@@ -276,12 +276,15 @@ class HPFeedsServer {
             `${flame}${flame}${flame} New binary caught! ${payload.hash} (VT: ${payload.detection})`
         ];
 
-        if (payload.vendors) {
+        if (payload.hasOwnProperty('vendors') && payload.vendors.length > 0) {
             message.concat([
                 `Vendors:`,
-                ...payload.vendors.map((v => `${v.vendor}: ${v.result}`)),
-                payload.permalink
+                ...payload.vendors.map((v => `${v.vendor}: ${v.result}`))
             ])
+        }
+
+        if (payload.hasOwnProperty('permalink')) {
+            message.concat([payload.permalink]);
         }
 
         logInfo(`Sending message: ${message}`);
@@ -293,7 +296,7 @@ class HPFeedsServer {
 
     curlPayload(payload) {
         if (payload.connection_channel === 'mwbinary.dionaea.sensorunique') {
-            logInfo(`Sending payload to elastic: ${payload}`);
+            // logInfo(`Sending payload to elastic: ${payload}`);
         }
 
         const curlrequest = spawn('curl', [
