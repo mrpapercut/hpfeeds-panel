@@ -44,8 +44,7 @@ const mainReducer = (state = initialState, action) => {
 
     case RECEIVE_FEEDS:
         return Object.assign({}, state, {
-            // Only keep track of last 500 feeds
-            feeds: combineNewFeeds(state.feeds, action.feeds).slice(0, 500),
+            feeds: combineNewFeeds(state.feeds, action.feeds),
             totalFeeds: action.totalFeeds
         });
 

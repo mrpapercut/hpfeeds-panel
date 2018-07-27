@@ -125,7 +125,7 @@ class WorldMap extends Component {
     }
 
     render() {
-        const feeds = this.groupFeeds(this.state.feeds);
+        const feeds = this.groupFeeds(this.state.feeds).slice(0, 150);
 
         const {tooltip} = this.state;
 
