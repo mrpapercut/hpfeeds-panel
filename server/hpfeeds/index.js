@@ -277,14 +277,14 @@ class HPFeedsServer {
         ];
 
         if (payload.hasOwnProperty('vendors') && payload.vendors.length > 0) {
-            message.concat([
+            message.push(...[
                 `Vendors:`,
                 ...payload.vendors.map((v => `${v.vendor}: ${v.result}`))
             ])
         }
 
         if (payload.hasOwnProperty('permalink')) {
-            message.concat([payload.permalink]);
+            message.push(...[payload.permalink]);
         }
 
         logInfo(`Sending message: ${message}`);
