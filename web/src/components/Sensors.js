@@ -1,11 +1,25 @@
 import {Component, createElement as E} from 'react';
+import {connect} from 'react-redux';
 
-const _sensors = {
-};
+import mainConfig from '../../../config.json';
+
+const _sensors = mainConfig.sensors;
 
 class Sensors extends Component {
     constructor(props) {
         super(props);
+    }
+
+    getSensorNameById(sensorid) {
+        const sensor = _sensors.filter(sensor => {
+            return sensor.id === sensorid;
+        });
+
+        if (sensor && sensor[0] && sensor[0].name) {
+            return sensor[0].name;
+        } else {
+            return sensorid;
+        }
     }
 
     filterSensors(feeds) {
@@ -23,44 +37,49 @@ class Sensors extends Component {
 
         const headers = [E('div', {
             key: -1,
-            className: 'sensor'
+            className: 'feedHeader'
         }, ['', 'Sensor', 'Last known activity'].map((h, i) =>
             E('span', {
-                key: i,
-                className: 'sensorHeader'
+                key: i
             }, h))
         )];
 
-        return E('div', {
-            className: 'container'
+        return E('section', {
+            className: 'container sensorsWrapper'
         },
-        E('h2', {
-            className: 'capturesHeader'
-        }, 'Sensors'),
-        E('div', {
-            className: 'sensors'
-        },
-        headers.concat(this.filterSensors(feeds).map((sensor, i) => {
-            let diff = parseInt((+new Date() - +new Date(sensor._source.timestamp)) / 1000, 10);
-
-            return E('div', {
-                key: i,
-                className: 'sensor'
+            E('h2', {
+                className: 'sensorsHeader'
+            }, 'Sensors'),
+            E('div', {
+                className: 'sensors innerWrapper'
             },
-            E('span', {
-                className: diff < 1800 ? 'sensorActive' : 'sensorInactive'
-            }),
-            E('span', {
-                className: 'sensorName'
-            }, _sensors[sensor._source.sensor] || sensor._source.sensor),
-            E('span', {
-                className: 'sensorLastActivity'
-            }, `${diff} seconds ago`)
-            );
-        }))
-        )
+                headers.concat(this.filterSensors(feeds).map((sensor, i) => {
+                    let diff = parseInt((+new Date() - +new Date(sensor._source.timestamp)) / 1000, 10);
+
+                    return E('div', {
+                        key: i,
+                        className: 'feed'
+                    },
+                        E('span', {
+                            className: diff < 1800 ? 'sensorActive' : 'sensorInactive'
+                        }),
+                        E('span', {
+                            className: 'sensorName'
+                        }, this.getSensorNameById(sensor._source.sensor)),
+                        E('span', {
+                            className: 'sensorLastActivity'
+                        }, `${diff} seconds ago`)
+                    );
+                }))
+            )
         );
     }
 }
 
-export default Sensors;
+const mapStateToProps = ({feeds}) => {
+    return {
+        feeds
+    };
+};
+
+export default connect(mapStateToProps, null)(Sensors);

@@ -1,12 +1,8 @@
 .feeds {
-    overflow-x: hidden;
-    overflow-y: auto;
-    max-height: 500px;
-
-    .feed {
+    .feed,
+    .feedHeader {
         display: grid;
-        grid-template-columns: 20% 22% 10% 15% calc(38% - 6px);
+        grid-template-columns: 20% 23% 10% 16% calc(32% - 6px);
         grid-gap: 2px;
-        font-family: Inconsolata;
     }
 }

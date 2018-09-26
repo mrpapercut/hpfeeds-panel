@@ -1,7 +1,11 @@
+import mainConfig from '../../../config.json';
+
+const webuiurl = `${mainConfig.webui.host}:${mainConfig.webui.port}`;
+
 export const GET_FEEDS = 'GET_FEEDS';
 export const getFeeds = () => {
     return function (dispatch) {
-        return fetch('http://192.168.1.34:3000/search/')
+        return fetch(`${webuiurl}/search/`)
             .then(
                 response => response.json(),
                 error => console.log(error)
@@ -23,7 +27,7 @@ export const receiveFeeds = feeds => {
 export const GET_CAPTURES = 'GET_CAPTURES';
 export const getCaptures = () => {
     return function (dispatch) {
-        return fetch('http://192.168.1.34:3000/captures/')
+        return fetch(`${webuiurl}/captures/`)
             .then(
                 response => response.json(),
                 error => console.log(error)
@@ -41,5 +45,28 @@ export const receiveCaptures = captures => {
         type: RECEIVE_CAPTURES,
         captures: captures.hits.hits,
         totalCaptures: captures.hits.total
+    };
+};
+
+export const GET_BINARIES = 'GET_BINARIES';
+export const getBinaries = () => {
+    return function(dispatch) {
+        return fetch(`${webuiurl}/binaries/`)
+            .then(
+                response => response.json(),
+                error => console.log(error)
+            ).then(json => {
+                return dispatch(receiveBinaries(json));
+            }).catch(error => {
+                console.log(error);
+            });
+    };
+};
+
+export const RECEIVE_BINARIES = 'RECEIVE_BINARIES';
+export const receiveBinaries = binaries => {
+    return {
+        type: RECEIVE_BINARIES,
+        binaries: binaries.hits.hits
     };
 };

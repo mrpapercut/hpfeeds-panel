@@ -1,14 +1,16 @@
 .sensors {
-    overflow-x: hidden;
-    overflow-y: auto;
-    height: 200px;
+    h2 {
+        text-indent: 2.5%;
+    }
 
-    .sensor {
+    .feed,
+    .feedHeader {
         display: grid;
         grid-template-columns: 2.5% 65% 30%;
         grid-gap: 2px;
-        font-family: Inconsolata;
+    }
 
+    .feed {
         .sensorActive:before {
             content: '';
             background: rgba(78, 255, 0, 0.65);

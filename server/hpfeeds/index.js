@@ -8,11 +8,15 @@ import hexdump      from 'hexdump-nodejs';
 import {spawn}      from 'child_process';
 
 import getGeodata   from '../util/getGeodata';
+import getVTData    from '../util/getVirustotalData';
 import md5sum       from '../util/md5sum';
+import Telegram     from '../util/Telegram';
 import {
     logError,
     logInfo
 } from '../util/log';
+
+import mainConfig   from '../../config.json';
 
 let identifier = 'HPFeedsNodeJSServer';
 
@@ -20,14 +24,26 @@ const clients = [];
 const img = [];
 
 class HPFeedsServer {
-    constructor(verbose, port) {
-        this.verbose = verbose || true;
-        this.port    = port || 10000;
+    constructor(verbose) {
+        this.verbose = verbose || false;
+        this.port    = mainConfig.receiver.port || 10000;
 
         // Vars
         this.lenIdent = null;
 
         this.createServer();
+    }
+
+    hexdump(val) {
+        let dump = '';
+
+        try {
+            dump = hexdump(val);
+        } catch (e) {
+            dump = '[Error: Unable to hexdump]';
+        }
+
+        return dump;
     }
 
     createServer() {
@@ -96,7 +112,7 @@ class HPFeedsServer {
                         this.flush();
 
                         if (self.verbose) {
-                            logInfo(`Auth packet with identifier: ${vars.identifier.toString()} and hash`, hexdump(vars.authHash));
+                            logInfo(`Auth packet with identifier: ${vars.identifier.toString()} and hash`, self.hexdump(vars.authHash));
                         }
                     } else if (vars.type === 3) {
                         this.word8bu('lenChannel');
@@ -111,13 +127,14 @@ class HPFeedsServer {
 
                         const {channel, payload, identifier, len} = vars;
 
+                        // Warning: can cause large logs, especially "payload"
                         if (self.verbose) {
                             logInfo(
                                 `Publish packet`,
                                 ` channel: ${channel.toString()}`,
                                 ` identifier: ${identifier.toString()}`,
                                 ` len: ${len.toString()}`,
-                                ` payload: ${hexdump(payload)}`
+                                ` payload: ${self.hexdump(payload)}`
                             );
                         }
 
@@ -128,12 +145,18 @@ class HPFeedsServer {
                             self.processPayload(payload.toString('utf8'), channel.toString(), identifier.toString());
                             break;
                         case 'mwbinary.dionaea.sensorunique':
-                            self.savePayloadToFile(payload);
-                            if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, hexdump(payload));
+                            logInfo('Caught binary');
+                            self.savePayloadToFile({
+                                payload,
+                                channel: channel.toString(),
+                                identifier: identifier.toString()
+                            });
+                            // if (self.verbose) logError(`caught something: ${payload.toString('utf8').length} bytes`, self.hexdump(payload));
                             break;
                         }
-                    } else { // Likely when local port 10000 is hit directly
-                        if (self.verbose) logError(`Error: Unknown packet found: \n${hexdump(bytes)}`);
+                    } else {
+                        // Warning: this next line causes error.log to grow to gigabytes in minutes!
+                        // if (self.verbose) logError(`Error: Unknown packet found: \n${self.hexdump(bytes)}`);
                         byteRunner = lenCompletePacket;
                     }
                 });
@@ -145,7 +168,7 @@ class HPFeedsServer {
         try {
             payload = JSON.parse(payload);
         } catch (e) {
-            logError(`Error trying to process payload:`, hexdump(payload));
+            logError(`Error trying to process payload:`, this.hexdump(payload));
             return;
         }
 
@@ -170,39 +193,64 @@ class HPFeedsServer {
         };
     }
 
-    savePayloadToFile(payload) {
-        const payloadsDirectory = path.resolve(path.join('.', '/payloads/'));
+    savePayloadToFile({payload, channel, identifier}) {
         const payloadhash = md5sum(payload);
 
-        fs.lstat(payloadsDirectory, (err, res) => {
-            if (err) {
-                fs.mkdir(payloadsDirectory, (err, res) => {
-                    if (err) {
-                        logError('Error creating directory `payloads`');
-                    } else {
-                        fs.writeFile(path.join(payloadsDirectory, `${payloadhash}.bin`), payload, (err, res) => {
-                            if (err) logError(`Could not write payload ${payloadhash}`);
-                        });
-                    }
-                });
-            } else {
-                fs.writeFile(path.join(payloadsDirectory, `${payloadhash}.bin`), payload, (err, res) => {
-                    if (err) logError(`Could not write payload ${payloadhash}`);
-                });
-            }
+        const payloadEvent = {
+            hash: payloadhash,
+            connection_channel: channel,
+            timestamp: +new Date(),
+            sensor: identifier
+        };
+
+        this.writeToFile(payloadhash, payload)
+            .then(() => this.addVirustotalData(payloadEvent))
+            .then(bundledPayload => {
+                logInfo(`Curling payload & sending notification`);
+                this.curlPayload(bundledPayload);
+                this.sendTelegramMessage(bundledPayload);
+            });
+    }
+
+    writeToFile(payloadhash, payload) {
+        const payloadsDirectory = path.resolve(path.join('.', '/payloads/'));
+        const filepath = path.join(payloadsDirectory, `${payloadhash}.bin`);
+
+        return new Promise((resolve, reject) => {
+            fs.lstat(payloadsDirectory, (err, res) => {
+                if (err) {
+                    fs.mkdir(path, (err, res) => {
+                        if (err) {
+                            logError('Error creating directory `payloads`');
+                        } else {
+                            fs.writeFile(filepath, payload, (err, res) => {
+                                if (err) logError(`Could not write payload ${payloadhash}`);
+                            });
+                        }
+
+                        resolve();
+                    });
+                } else {
+                    fs.writeFile(filepath, payload, (err, res) => {
+                        if (err) logError(`Could not write payload ${payloadhash}`);
+                        resolve();
+                    });
+                }
+            });
         });
     }
 
     addGeodata(payload) {
         return new Promise((resolve, reject) => {
-            getGeodata(payload.remote_host, (err, geodata) => {
+            getGeodata(payload.remote_host, (err, {latitude, longitude, city, country}) => {
                 if (err) logError(err);
 
                 payload = Object.assign(payload, {
-                    coordinates: [geodata.latitude, geodata.longitude],
-                    longitude: geodata.longitude,
-                    latitude: geodata.latitude,
-                    city: geodata.fqcn
+                    coordinates: [latitude, longitude],
+                    longitude,
+                    latitude,
+                    city,
+                    country
                 });
 
                 resolve(payload);
@@ -210,7 +258,47 @@ class HPFeedsServer {
         });
     }
 
+    addVirustotalData(payload) {
+        return new Promise((resolve, reject) => {
+            getVTData(payload.hash).then(data => {
+                payload = Object.assign(payload, data);
+
+                resolve(payload);
+            });
+        });
+    }
+
+    sendTelegramMessage(payload) {
+        const flame = '🔥';
+        const telegram = new Telegram();
+
+        let message = [
+            `${flame}${flame}${flame} New binary caught! ${payload.hash} (VT: ${payload.detection})`
+        ];
+
+        if (payload.hasOwnProperty('vendors') && payload.vendors.length > 0) {
+            message.push(...[
+                `Vendors:`,
+                ...payload.vendors.map((v => `${v.vendor}: ${v.result}`))
+            ])
+        }
+
+        if (payload.hasOwnProperty('permalink')) {
+            message.push(...[payload.permalink]);
+        }
+
+        logInfo(`Sending message: ${message}`);
+
+        telegram.sendMessage(message.join('\n')).then(res => {
+            logInfo(`Message sent: ${message}`)
+        });
+    }
+
     curlPayload(payload) {
+        if (payload.connection_channel === 'mwbinary.dionaea.sensorunique') {
+            // logInfo(`Sending payload to elastic: ${payload}`);
+        }
+
         const curlrequest = spawn('curl', [
             '--user', 'elastic:elastic',
             '-X', 'POST', 'http://localhost:9200/hpfeeds/feed',

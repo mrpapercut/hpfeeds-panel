@@ -1,4 +1,5 @@
-import { Component, createElement as E } from 'react';
+import {Component, createElement as E} from 'react';
+import {connect} from 'react-redux';
 import {
     ComposableMap,
     ZoomableGroup,
@@ -8,19 +9,12 @@ import {
     Marker
 } from 'react-simple-maps';
 
-/*
-import { scaleLinear } from 'd3-scale';
-const cityScale = (value, max) =>
-    (scaleLinear()
-        .domain([0, max])
-        .range([1, 25]))(value);
-*/
-
 class WorldMap extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            feeds: this.props.feeds,
             zoom: 1,
             center: [0, 20],
             tooltip: {
@@ -37,6 +31,14 @@ class WorldMap extends Component {
 
     componentWillUnmount() {
         window.removeEventListener('wheel', this.handleScroll.bind(this));
+    }
+
+    componentWillReceiveProps(newProps) {
+        if (newProps.feeds.length > this.state.feeds.length) {
+            this.setState({
+                feeds: newProps.feeds
+            });
+        }
     }
 
     handleScroll(e) {
@@ -69,6 +71,7 @@ class WorldMap extends Component {
             tooltip: {
                 show: true,
                 city: marker.city,
+                country: marker.country,
                 coordinates: marker.coordinates,
                 ids: marker._ids
             }
@@ -80,6 +83,7 @@ class WorldMap extends Component {
             tooltip: {
                 show: false,
                 city: '',
+                country: '',
                 coordinates: [],
                 ids: []
             }
@@ -93,7 +97,7 @@ class WorldMap extends Component {
     groupFeeds(feeds) {
         // Filter out feeds without coordinates
         let newFeeds = feeds.filter(feed => {
-            return feed._source.coordinates[0] !== null && feed._source.coordinates[1] !== null;
+            return feed._source.hasOwnProperty('coordinates') && feed._source.coordinates[0] !== null && feed._source.coordinates[1] !== null;
         }).map(feed => {
             feed._source._id = feed._id;
             feed._source._isNew = feed._isNew;
@@ -121,133 +125,140 @@ class WorldMap extends Component {
     }
 
     render() {
-        const feeds = this.groupFeeds(this.props.feeds);
+        const feeds = this.groupFeeds(this.state.feeds).slice(0, 150);
 
         const {tooltip} = this.state;
 
-        return E('div', {
+        return E('section', {
             className: 'container worldMapWrapper'
         },
-        E(ComposableMap, {
-            projectionConfig: {
-                scale: 205
-            },
-            width: 980,
-            height: 551,
-            style: {
-                width: '100%',
-                height: 'auto'
-            }
-        },
-        E(ZoomableGroup, {
-            center: this.state.center,
-            zoom: this.state.zoom
-        },
-        E(Geographies, {
-            geography: 'world-50m.json'
-        },
-        (geographies, projection) => {
-            return geographies.map((geography, i) => {
-                return geography.id !== 'ATA' && (
-                    E(Geography, {
-                        key: i,
-                        geography: geography,
-                        projection: projection,
-                        style: {
-                            default: {
-                                fill: 'rgba(16, 16, 16, 0.8)', // "#ECEFF1",
-                                stroke: 'rgba(0, 255, 255, 1)', // 'rgba(0, 78, 255, 1)', // "#607D8B",
-                                strokeWidth: 0.75,
-                                outline: 'none'
-                            },
-                            hover: {
-                                fill: '#111',
-                                stroke: '#fff',
-                                strokeWidth: 0.75,
-                                outline: 'none'
-                            },
-                            pressed: {
-                                fill: '#111',
-                                stroke: '#fff',
-                                strokeWidth: 0.75,
-                                outline: 'none'
-                            }
-                        }
-                    })
-                );
-            });
-        }
-        ),
-        E(Markers, {},
-            feeds.map((feed, i) => {
-                return E(Marker, {
-                    key: i,
-                    marker: {
-                        _ids: feed._ids,
-                        _count: feed._count,
-                        city: feed.city,
-                        coordinates: [feed.longitude, feed.latitude]
-                    },
-                    onMouseEnter: this.handleCityMouseOver.bind(this),
-                    onMouseLeave: this.handleCityMouseOut.bind(this),
-                    onClick: this.handleCityClick.bind(this)
+            E(ComposableMap, {
+                projectionConfig: {
+                    scale: 205
                 },
-                feed._isNew ? E('circle', {
-                    cx: 0,
-                    cy: 0,
-                    r: 10 * this.state.zoom,
-                    fill: 'rgba(0, 255, 78, .5)',
-                    stroke: 'rgba(0, 255, 78, 1)',
-                    strokeWidth: '2'
-                }) : E('circle', {
-                    cx: 0,
-                    cy: 0,
-                    r: 2 * this.state.zoom,
-                    fill: 'rgba(255, 78, 0, 0.8)',
-                    stroke: 'rgba(255, 78, 0, 1)',
-                    strokeWidth: '2'
-                })
-                );
-            })
-        ),
-        tooltip.show ? E(Markers, {},
-            E(Marker, {
-                key: 'tooltip',
-                marker: {
-                    city: tooltip.city,
-                    coordinates: tooltip.coordinates
+                width: 980,
+                height: 551,
+                style: {
+                    width: '100%',
+                    height: '100%'
                 }
             },
-            E('rect', {
-                x: 0,
-                y: 0,
-                width: 200,
-                height: 45 + (tooltip.ids.length * 14),
-                fill: '#111',
-                stroke: 'rgba(0, 255, 255, 1)',
-                strokeWidth: 1
-            }),
-            E('text', {
-                x: 0,
-                y: '.5em',
-                width: 190,
-                height: 90,
-                fontFamily: 'Inconsolata',
-                fontSize: '.8em',
-                fill: '#fff'
-            },
-            [tooltip.city, ' ', ...tooltip.ids].map((text, i) => E('tspan', {
-                key: i,
-                x: '1em',
-                dy: '1em'
-            }, text))
+                E(ZoomableGroup, {
+                    center: this.state.center,
+                    zoom: this.state.zoom
+                },
+                    E(Geographies, {
+                        geography: 'world-50m.json'
+                    },
+                        (geographies, projection) => {
+                            return geographies.map((geography, i) => {
+                                return geography.id !== 'ATA' && (
+                                    E(Geography, {
+                                        key: i,
+                                        geography: geography,
+                                        projection: projection,
+                                        style: {
+                                            default: {
+                                                fill: 'rgba(16, 16, 16, 0.8)', // "#ECEFF1",
+                                                stroke: 'rgba(0, 255, 255, 1)', // 'rgba(0, 78, 255, 1)', // "#607D8B",
+                                                strokeWidth: 0.75,
+                                                outline: 'none'
+                                            },
+                                            hover: {
+                                                fill: '#111',
+                                                stroke: '#fff',
+                                                strokeWidth: 0.75,
+                                                outline: 'none'
+                                            },
+                                            pressed: {
+                                                fill: '#111',
+                                                stroke: '#fff',
+                                                strokeWidth: 0.75,
+                                                outline: 'none'
+                                            }
+                                        }
+                                    })
+                                );
+                            });
+                        }
+                    ),
+                    E(Markers, {},
+                        feeds.map((feed, i) => {
+                            return E(Marker, {
+                                key: i,
+                                marker: {
+                                    _ids: feed._ids,
+                                    _count: feed._count,
+                                    city: feed.city,
+                                    country: feed.country,
+                                    coordinates: [feed.longitude, feed.latitude]
+                                },
+                                onMouseEnter: this.handleCityMouseOver.bind(this),
+                                onMouseLeave: this.handleCityMouseOut.bind(this),
+                                onClick: this.handleCityClick.bind(this)
+                            },
+                            feed._isNew ? E('circle', {
+                                cx: 0,
+                                cy: 0,
+                                r: 10 * this.state.zoom,
+                                fill: 'rgba(0, 255, 78, .5)',
+                                stroke: 'rgba(0, 255, 78, 1)',
+                                strokeWidth: '2'
+                            }) : E('circle', {
+                                cx: 0,
+                                cy: 0,
+                                r: 2 * this.state.zoom,
+                                fill: 'rgba(255, 78, 0, 0.8)',
+                                stroke: 'rgba(255, 78, 0, 1)',
+                                strokeWidth: '2'
+                            })
+                            );
+                        })
+                    ),
+                    tooltip.show ? E(Markers, {},
+                        E(Marker, {
+                            key: 'tooltip',
+                            marker: {
+                                city: tooltip.city,
+                                coordinates: tooltip.coordinates
+                            }
+                        },
+                            E('rect', {
+                                x: 0,
+                                y: 0,
+                                width: 200,
+                                height: 60, // 45 + (tooltip.ids.length * 14),
+                                fill: '#111',
+                                stroke: 'rgba(0, 255, 255, 1)',
+                                strokeWidth: 1
+                            }),
+                            E('text', {
+                                x: 0,
+                                y: '.5em',
+                                width: 190,
+                                height: 90,
+                                fontFamily: 'Inconsolata',
+                                fontSize: '.8em',
+                                fill: '#fff'
+                            },
+                                [tooltip.city, tooltip.country || ' ', `${tooltip.ids.length} hit(s)`].map((text, i) => E('tspan', {
+                                    key: i,
+                                    x: '1em',
+                                    dy: '1em'
+                                }, text))
+                            )
+                        )
+                    ) : null
+                )
             )
-            )
-        ) : null
-        )
-        )
         );
     }
 }
 
-export default WorldMap;
+const mapStateToProps = ({feeds}) => {
+    return {
+        feeds
+    };
+};
+
+export default connect(mapStateToProps, null)(WorldMap);

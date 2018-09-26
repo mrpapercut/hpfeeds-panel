@@ -1,0 +1,33 @@
+.graphsWrapper {
+    .graph {
+        float: left;
+        width: 33%;
+
+        .chartsHeader {
+            text-align: center;
+        }
+
+        .recharts-wrapper {
+            margin: 0 auto;
+        }
+
+        .topIp {
+            .recharts-legend-item {
+                clear: both;
+                width: 100%;
+            }
+        }
+
+        .topPorts,
+        .topCountries {
+            .recharts-legend-item {
+                width: calc(50% - 10px);
+
+                &:nth-child(-n + 5) {
+                    float: left;
+                    clear: left;
+                }
+            }
+        }
+    }
+}

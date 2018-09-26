@@ -2,14 +2,17 @@ import {
     GET_FEEDS,
     RECEIVE_FEEDS,
     GET_CAPTURES,
-    RECEIVE_CAPTURES
+    RECEIVE_CAPTURES,
+    GET_BINARIES,
+    RECEIVE_BINARIES
 } from '../actions/mainActions';
 
 const initialState = {
     feeds: [],
     totalFeeds: 0,
     captures: [],
-    totalCaptures: 0
+    totalCaptures: 0,
+    binaries: []
 };
 
 const combineNewFeeds = (currentFeeds, newFeeds, i) => {
@@ -18,21 +21,20 @@ const combineNewFeeds = (currentFeeds, newFeeds, i) => {
         return f;
     });
 
-    newFeeds.forEach(f => {
-        if (currentFeeds.filter(cf => {
-            return cf._source.timestamp === f._source.timestamp &&
-                cf._source.city === f._source.city;
-        }).length === 0) {
-            f._isNew = true;
-            currentFeeds.push(f);
-        }
+    newFeeds = newFeeds.map(f => {
+        f._isNew = true;
+        return f;
     });
 
-    currentFeeds.sort((a, b) => {
+    const unique = (array, propertyName) => {
+        return array.filter((e, i) => array.findIndex(a => a[propertyName] === e[propertyName]) === i);
+    };
+
+    let feeds = unique(currentFeeds.concat(newFeeds), '_id').sort((a, b) => {
         return b._source.timestamp - a._source.timestamp;
     });
 
-    return currentFeeds;
+    return feeds;
 };
 
 const mainReducer = (state = initialState, action) => {
@@ -53,6 +55,14 @@ const mainReducer = (state = initialState, action) => {
         return Object.assign({}, state, {
             captures: combineNewFeeds(state.captures, action.captures, !0),
             totalCaptures: action.totalCaptures
+        });
+
+    case GET_BINARIES:
+        return state;
+
+    case RECEIVE_BINARIES:
+        return Object.assign({}, state, {
+            binaries: combineNewFeeds(state.binaries, action.binaries)
         });
 
     default:

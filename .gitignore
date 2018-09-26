@@ -1,7 +1,9 @@
 # Folders
 node_modules
+payloads
 
 # Files
 package-lock.json
 server.log
 error.log
+config.json

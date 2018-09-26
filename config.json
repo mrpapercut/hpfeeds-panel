@@ -1,0 +1,16 @@
+{
+    "receiver": {
+        "port": 10000
+    },
+    "webui": {
+        "host": "",
+        "port": 3000
+    },
+    "sensors": [{
+        "id": "",
+        "name": ""
+    }],
+    "virustotal": {
+        "apikey": ""
+    }
+}

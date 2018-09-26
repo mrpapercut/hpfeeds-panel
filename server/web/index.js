@@ -1,8 +1,12 @@
 import Express from 'express';
 import elastic from 'elasticsearch';
 
+import mainConfig from '../../config.json';
+
 class WebServer {
     constructor() {
+        this.port = mainConfig.webui.port || 3000;
+
         this.server = new Express();
         this.esclient = new elastic.Client({
             httpAuth: 'elastic:elastic',
@@ -28,7 +32,8 @@ class WebServer {
             res.set('Access-Control-Allow-Origin', '*');
 
             this.searchES({
-                from: req.params.from
+                from: req.params.from,
+                size: 50
             }).then(feeds => {
                 res.send(feeds);
             });
@@ -39,18 +44,41 @@ class WebServer {
 
             this.searchES({
                 query: {
-                    term: {
-                        connection_channel: 'dionaea.capture'
+                    bool: {
+                        must: [{
+                            match: {
+                                connection_channel: 'dionaea.capture'
+                            }
+                        }, {
+                            regexp: {
+                                url: '.+'
+                            }
+                        }]
                     }
                 },
-                size: 200
+                size: 100
             }).then(captures => {
                 res.send(captures);
             });
         });
 
-        this.server.listen(3000, () => {
-            console.log('WebServer started listing on port 3000');
+        this.server.get('/binaries/', (req, res) => {
+            res.set('Access-Control-Allow-Origin', '*');
+
+            this.searchES({
+                query: {
+                    term: {
+                        connection_channel: 'mwbinary.dionaea.sensorunique'
+                    }
+                },
+                size: 250
+            }).then(binaries => {
+                res.send(binaries);
+            });
+        });
+
+        this.server.listen(this.port, () => {
+            console.log(`WebServer started listing on port ${this.port}`);
         });
     }
 }
